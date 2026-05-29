@@ -1,0 +1,56 @@
+---
+description: 维护 MyRoguelike/learning/ 学习导读，将对话中出现的 Lyra KB 内容自动关联到对应阶段导读文件
+globs: MyRoguelike/**
+alwaysApply: false
+---
+
+# Roguelike 学习导读维护规则
+
+本规则在处理 MyRoguelike/ 相关任务时激活。
+
+## 学习导读目录
+
+`MyRoguelike/learning/` 包含按 roadmap 阶段组织的学习导读文件，是"Lyra KB 知识"和"roguelike 功能开发"之间的索引桥梁。
+
+## 自动维护协议
+
+**每次对话满足以下任一条件时，必须检查并更新导读文件：**
+
+1. 对话中引用或详细解释了 `Docs/` 下的任一页面。
+2. 对话涉及 roguelike 项目的某个功能模块（GAS、Relic、RunManager、关卡等）。
+3. 用户提问与 MyRoguelike/roadmap.md 中的某一阶段相关。
+
+**检查步骤：**
+
+1. 判断引用内容属于哪个 roadmap 阶段（phase0 ~ phase6）。
+2. 读取对应的 `MyRoguelike/learning/phaseN-*.md`。
+3. 若该 Docs 链接尚未出现在导读中：
+   - 将其追加到"推荐阅读清单"或"扩展阅读"区块。
+   - 同步更新 `MyRoguelike/learning/index.md` 的对应阶段条目。
+4. 若无法确定阶段，追加到 `MyRoguelike/learning/index.md` 的"待分配"区块。
+
+**不要过度追加：** 只追加在当前对话中真正被引用或深入讨论的文档，不要把整个相关系列全部加进去。
+
+## 阶段与功能的映射
+
+| 阶段 | 导读文件 | 核心功能 |
+|------|----------|----------|
+| Phase 0 | phase0-project-init.md | 工程初始化、GameMode、Enhanced Input |
+| Phase 1 | phase1-gas-skill-loop.md | GAS、ASC、AbilitySet、技能释放闭环 |
+| Phase 2 | phase2-enemy-combat-room.md | AI 行为、AActor 生命周期、战斗房间 |
+| Phase 3 | phase3-relic-system.md | DataAsset、PrimaryAsset、Relic 构筑 |
+| Phase 4 | phase4-run-manager.md | GameInstance、RunState、局内状态管理 |
+| Phase 5 | phase5-procedural-level.md | Level Streaming、异步加载、程序化关卡 |
+| Phase 6 | phase6-meta-progress.md | 存档、Meta 进度、资源管理 |
+
+## 追加格式
+
+新条目追加到对应区块末尾，格式：
+
+```markdown
+- [`文件名`](../../Docs/路径/文件名.md) — 一句话说明在此阶段读它的目的
+```
+
+## 单机差异提示维护
+
+若新引用的文档章节明显假设多人 / 服务器权威，应在追加时在同文件的"Lyra 单机差异提示"区块注明跳过哪些小节。

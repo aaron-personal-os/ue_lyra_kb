@@ -1,0 +1,36 @@
+---
+description: Rules for developing the Astro React knowledge-base web app
+globs: web-app/**/*
+alwaysApply: false
+---
+
+# Web App Development
+
+When working under `web-app/`, follow the web-app-dev skill.
+
+## Required Context
+
+Before implementation or debugging, read:
+
+- `.codebuddy/skills/web-app-dev/SKILL.md`
+- `.codebuddy/skills/web-app-dev/reference/architecture.md`
+- `.codebuddy/skills/web-app-dev/reference/conventions.md`
+- `.codebuddy/skills/web-app-dev/reference/component-catalog.md` when touching components
+- `.codebuddy/skills/web-app-dev/reference/gotchas.md` when debugging known issues
+
+## Architecture Rules
+
+- Use Astro for static layout and content rendering.
+- Use React Islands only for client-side interaction.
+- Keep Markdown content in `Docs/30-tutorials/`; do not copy tutorial content into `web-app/`.
+- Keep the app statically buildable; do not introduce SSR or hybrid mode unless explicitly requested.
+- Keep terminal integration dev-only and isolated from production builds.
+- Prefer existing components and utilities before adding new abstractions.
+
+## Workflow Routing
+
+- New page or feature: read `workflows/implement.md`.
+- Bug fix: read `workflows/fix-bug.md`.
+- Component work: read `workflows/component.md`.
+- Visual-only change: read `workflows/style.md`.
+- Refactor or performance work: read `workflows/refactor.md`.

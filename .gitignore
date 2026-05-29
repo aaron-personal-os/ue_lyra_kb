@@ -170,13 +170,6 @@ build/
 # 排除 Developer 子目录（不提交）
 /Plugins/Developer/
 
-
-
-# AI 工具目录
-/.codex/
-/.cursor/
-/.superpowers/
-
 # 根目录忽略文件
 AGENTS.md
 CLAUDE.md

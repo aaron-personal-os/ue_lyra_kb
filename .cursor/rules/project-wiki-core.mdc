@@ -1,0 +1,32 @@
+---
+description: Core Cursor entry rule for the UE Lyra knowledge base
+alwaysApply: true
+---
+
+# UE Lyra Knowledge Base
+
+This repository is a UE Lyra technical learning knowledge base, not only a game project.
+
+## Default Behavior
+
+- Answer in Chinese unless the user explicitly requests another language.
+- Treat `Docs/` as the knowledge source of truth.
+- For technical questions, read wiki context before answering instead of relying only on general knowledge.
+- Prefer tutorial pages in `Docs/30-tutorials/` for teaching-style answers.
+- Prefer architecture/module/runbook pages for implementation, source-trace, or "how to" questions.
+
+## Required Entry Points
+
+When a task needs project context, use these files first:
+
+- `Docs/README.md`
+- `Docs/index.md`
+- `Docs/overview.md`
+- `Docs/00-meta/learning-paths.md`
+- `Docs/00-meta/ai-playbook.md`
+
+## Deep Workflow Manual
+
+For knowledge-base tasks, use `.codebuddy/skills/project-wiki/SKILL.md` as the detailed workflow manual.
+
+Do not inline or duplicate the whole skill into answers. Load only the workflow files needed for the user's intent.

@@ -1,0 +1,34 @@
+---
+description: Rules for editing and maintaining Docs wiki pages
+globs: Docs/**/*.md,Docs/**/*.yaml,Docs/**/*.yml
+alwaysApply: false
+---
+
+# Docs Wiki Workflow
+
+When working in `Docs/`, follow the project-wiki system.
+
+## Before Editing
+
+- Read `.codebuddy/skills/project-wiki/SKILL.md`.
+- Read `Docs/.wiki-schema.md` for page types, frontmatter, and directory rules.
+- Read `Docs/00-meta/ai-playbook.md` for AI collaboration constraints.
+- Use `Docs/index.md` to locate existing related pages before creating new pages.
+
+## Content Rules
+
+- Keep Markdown as the source of truth.
+- Preserve frontmatter fields and update status metadata when relevant.
+- Use explicit `[[wikilink]]` references instead of vague phrases like "see related docs".
+- Prefer the teaching structure: concept intuition, technical mechanism, Lyra example.
+- Do not cite `status: stale` or `status: deprecated` pages without warning the user.
+
+## Workflow Routing
+
+- Teaching or explanation: read `workflows/teach.md`.
+- Source analysis: read `workflows/source-trace.md`.
+- New tutorial series: read `workflows/create-series.md`.
+- Improve existing tutorials: read `workflows/evolve-series.md`.
+- Review or lint knowledge quality: read `workflows/review-series.md` or `workflows/lint.md`.
+
+After substantial wiki edits, suggest rebuilding the wiki index incrementally rather than doing a full rebuild by default.
