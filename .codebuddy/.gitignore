@@ -1,0 +1,12 @@
+# 忽略缓存文件（保留 pre-commit hook 需要的 anchors.json）
+.cache/
+!skills/project-wiki/.cache/
+!skills/project-wiki/.cache/anchors.json
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 忽略临时文件
+*.log
+*.tmp

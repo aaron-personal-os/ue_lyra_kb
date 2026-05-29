@@ -1,0 +1,39 @@
+name: UMG（Unreal Motion Graphics）从入门到实战
+slug: umg
+description: 系统学习 UMG 的核心概念、Slate 绑定机制、控件树生命周期、动画系统、数据绑定、输入处理，以及 Lyra 项目中的 UMG 最佳实践。
+difficulty_range:
+- beginner
+- advanced
+ue_version: 5.4+
+total_lessons: 10
+estimated_hours: 10
+prerequisites:
+- series: ue-framework
+  minimum: 00-UMG系列概览
+- concept: 了解 UE 基本的 Actor、Component 概念
+learning_path:
+- stage: 入门阶段
+  description: 理解 UMG 是什么、核心类架构、常用控件
+  lessons:
+  - 00-UMG系列概览
+  - 01-UMG基础与核心类架构
+  - 02-常用控件详解
+- stage: 核心机制
+  description: 深入理解 UMG 与 Slate 绑定、控件树生命周期、动画系统、数据绑定
+  lessons:
+  - 03-UMG与Slate绑定机制深度分析
+  - 04-控件树构建与Widget生命周期
+  - 05-UMG动画系统详解
+  - 06-UMG数据绑定与属性通知
+- stage: 高级主题与实战
+  description: UMG 输入处理、Lyra 项目实战、性能优化
+  lessons:
+  - 07-UMG中的输入处理
+  - 08-Lyra项目UMG实战
+  - 09-UMG性能优化
+tags:
+- umg
+- ui
+- slate
+- commonui
+- widget

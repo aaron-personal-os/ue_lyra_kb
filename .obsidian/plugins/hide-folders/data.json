@@ -1,0 +1,20 @@
+{
+  "areFoldersHidden": true,
+  "matchCaseInsensitive": true,
+  "addHiddenFoldersToObsidianIgnoreList": true,
+  "hideBottomStatusBarIndicatorText": false,
+  "enableCompatQuickExplorer": false,
+  "attachmentFolderNames": [
+    "Binaries",
+    "Config",
+    "DerivedDataCache",
+    "Content",
+    "Intermediate",
+    "Platforms",
+    "Plugins",
+    "Saved",
+    "Source",
+    "ToolsScript",
+    ".git"
+  ]
+}

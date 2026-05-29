@@ -1,0 +1,49 @@
+# UE5 资源管理教程系列元数据
+
+id: resource-management
+title: "UE5 资源管理从入门到实战"
+description: "系统学习 UE5 的资源管理体系，包括 AssetManager、Asset Registry、异步加载、Cook 与 Pak 打包、内存管理，以及在 Lyra 项目中的实践应用。"
+difficulty_range: [beginner, advanced]
+ue_version: "5.7"
+total_lessons: 8
+estimated_hours: 10
+
+# 学习路径（分阶段）
+learning_path:
+  - stage: "基础概念"
+    description: "理解 Primary Asset / Secondary Asset 分类体系和 AssetManager 配置"
+    lessons:
+      - 00-UE5资源管理系列概览
+      - 01-资产分类体系PrimaryAsset与SecondaryAsset
+
+  - stage: "核心机制"
+    description: "掌握 Asset Registry 查询、异步加载、引用与内存管理"
+    lessons:
+      - 02-AssetRegistry资产注册表查询
+      - 03-异步加载FStreamableManager与RequestAsyncLoad
+      - 04-引用与GC资源内存管理
+
+  - stage: "打包与部署"
+    description: "理解 Cook 流程、Pak 文件结构和打包资源管理策略"
+    lessons:
+      - 05-Cook与Pak打包流程
+
+  - stage: "实战与进阶"
+    description: "学习 Lyra 资源管理实践、IO 虚拟化、性能优化和常见陷阱"
+    lessons:
+      - 06-Lyra资源管理实践
+      - 07-高级主题IO虚拟化与性能优化
+
+# 前置知识要求
+prerequisites:
+  - series: ue-framework
+    minimum: 00-UE5资源管理系列概览
+    description: "建议先学习 UE 框架基础系列，了解 UObject 和 Asset 的基本概念"
+  - series: garbage-collection
+    minimum: 00-UE5资源管理系列概览
+    description: "第 04 课会引用 GC 系列内容，建议至少读完 GC 概览"
+  - concept: C++ 基础
+    description: "需要了解 C++ 指针、引用、智能指针、模板等基本概念"
+
+# 系列标签
+tags: [resource-management, asset-manager, asset-registry, async-loading, cook, pak, memory]

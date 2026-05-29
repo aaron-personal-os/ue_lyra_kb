@@ -1,0 +1,242 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Navbar from '@/components/layout/Navbar.astro';
+import FloatingSidebar from '@/components/layout/FloatingSidebar.astro';
+import TableOfContents from '@/components/layout/TableOfContents.astro';
+import Hero from '@/components/layout/Hero.astro';
+import { getSeriesBySlug, getSeriesLessons, getLessonTitle } from '@/lib/series';
+import ProgressTracker from '@/components/interactive/ProgressTracker.tsx';
+import MermaidInit from '@/components/interactive/MermaidInit.astro';
+import CodeBlockEnhancer from '@/components/interactive/CodeBlockEnhancer.astro';
+import SectionReveal from '@/components/interactive/SectionReveal.astro';
+import PresentationMode from '@/components/interactive/PresentationMode.tsx';
+import TerminalPanel from '@/components/interactive/TerminalPanel.tsx';
+import { getSeriesTheme } from '@/lib/theme';
+
+// Dev-only embedded terminal (see ADR-0003). The component is statically
+// imported (Astro requires this so it can register the Island), but the
+// render site below is guarded by `import.meta.env.DEV` — Vite folds that
+// constant at build time and Rollup tree-shakes the unused import + its
+// xterm dependencies out of `astro build` artifacts.
+const isDev = import.meta.env.DEV;
+
+interface Props {
+  title: string;
+  description?: string;
+  seriesSlug: string;
+  lessonId?: string;
+  headings: { depth: number; slug: string; text: string }[];
+  frontmatter: Record<string, any>;
+}
+
+const { title, description, seriesSlug, lessonId, headings, frontmatter } = Astro.props;
+
+const series = getSeriesBySlug(seriesSlug);
+const allLessons = getSeriesLessons(seriesSlug);
+
+// Determine current lesson index
+const currentIndex = lessonId ? allLessons.indexOf(lessonId) : -1;
+const totalLessons = series?.total_lessons || allLessons.length;
+
+// Calculate progress
+const progress = totalLessons > 0 && currentIndex >= 0
+  ? Math.round(((currentIndex + 1) / totalLessons) * 100)
+  : 0;
+
+// Prev/Next navigation
+const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null;
+const nextLesson = currentIndex >= 0 && currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
+
+// Difficulty from frontmatter or series
+const difficulty = frontmatter.difficulty || (Array.isArray(series?.difficulty_range) ? series.difficulty_range[0] : series?.difficulty_range) || '';
+
+// Estimated minutes
+const estimatedMinutes = frontmatter.estimated_minutes || frontmatter.estimatedMinutes;
+
+// Last synced — format as YYYY-MM-DD string
+const rawSynced = frontmatter.last_synced || frontmatter.lastSynced;
+const lastSynced = rawSynced instanceof Date
+  ? rawSynced.toISOString().split('T')[0]
+  : typeof rawSynced === 'string' ? rawSynced : undefined;
+
+// Theme for presentation mode
+const theme = getSeriesTheme(seriesSlug);
+const lessonMetaStr = currentIndex >= 0 ? `第 ${currentIndex + 1} 课 / 共 ${totalLessons} 课` : '';
+---
+
+<BaseLayout title={title} description={description}>
+  <Navbar />
+
+  <!-- Left Sidebar: Series Navigation -->
+  <FloatingSidebar side="left" label="系列导航">
+    {series && (
+      <div class="space-y-4">
+        <h3 class="text-sm font-semibold text-[var(--text-primary)]">
+          {series.name}
+        </h3>
+
+        {series.learning_path.map((stage, stageIdx) => (
+          <div class="space-y-1">
+            <h4 class="text-xs font-medium uppercase tracking-wider text-[var(--text-secondary)] mt-3 mb-1.5">
+              {stage.stage}
+            </h4>
+            <ul class="space-y-0.5">
+              {stage.lessons.map((lesson) => {
+                const isCurrent = lesson === lessonId;
+                const lessonTitle = getLessonTitle(seriesSlug, lesson);
+                return (
+                  <li>
+                    <a
+                      href={`/series/${seriesSlug}/${lesson}`}
+                      title={lessonTitle}
+                      class:list={[
+                        'block px-3 py-1.5 rounded-md text-sm leading-snug transition-colors',
+                        isCurrent
+                          ? 'bg-[var(--accent)]/15 text-[var(--accent)] font-medium'
+                          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-2)]',
+                      ]}
+                    >
+                      {lessonTitle}
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+
+        <!-- Progress bar at bottom -->
+        <div class="pt-4 border-t border-[var(--border)]">
+          <div class="flex items-center justify-between text-xs text-[var(--text-secondary)] mb-1">
+            <span>进度</span>
+            <span id="series-progress-text">{progress}% 已完成</span>
+          </div>
+          <div class="h-1.5 w-full rounded-full bg-[var(--surface-2)] overflow-hidden">
+            <div
+              id="series-progress-bar"
+              class="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-300 transition-[width] duration-300"
+              style={`width: ${progress}%`}
+            ></div>
+          </div>
+        </div>
+      </div>
+    )}
+  </FloatingSidebar>
+
+  <!-- Right Sidebar: Table of Contents -->
+  <FloatingSidebar side="right" label="本页目录">
+    <TableOfContents headings={headings} />
+  </FloatingSidebar>
+
+  <!-- Full-viewport Hero (sits OUTSIDE <main> so the sidebar margins do not constrain it) -->
+  <Hero
+    title={title}
+    description={description}
+    seriesSlug={seriesSlug}
+    seriesName={series?.name || seriesSlug}
+    lessonIndex={currentIndex >= 0 ? currentIndex + 1 : undefined}
+    totalLessons={totalLessons}
+    difficulty={difficulty}
+    estimatedMinutes={estimatedMinutes}
+    lastSynced={lastSynced}
+    progress={progress}
+    scrollTargetId="lesson-content"
+  />
+
+  <!-- Main Content (this element gets its margins adjusted by the sidebars) -->
+  <main id="main-content" class="transition-[margin] duration-200 ease-out">
+    <div id="lesson-content" class="max-w-4xl mx-auto px-6 py-10">
+      <article class="prose-tutorial" data-lesson-path={`${seriesSlug}/${lessonId || ''}`}>
+        <slot />
+      </article>
+
+      <!-- Progress Tracker (client-side localStorage persistence) -->
+      <ProgressTracker
+        client:load
+        seriesSlug={seriesSlug}
+        lessonId={lessonId || ''}
+        totalLessons={totalLessons}
+      />
+
+      <!-- Prev / Next Navigation -->
+      {(prevLesson || nextLesson) && (
+        <nav class="flex items-center justify-between mt-12 pt-6 border-t border-[var(--border)]">
+          {prevLesson ? (
+            <a
+              href={`/series/${seriesSlug}/${prevLesson}`}
+              class="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--surface-1)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--accent)]/50 transition-colors text-sm"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              <span>← 上一课</span>
+            </a>
+          ) : <div />}
+          {nextLesson ? (
+            <a
+              href={`/series/${seriesSlug}/${nextLesson}`}
+              class="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--surface-1)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--accent)]/50 transition-colors text-sm"
+            >
+              <span>下一课 →</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+          ) : <div />}
+        </nav>
+      )}
+    </div>
+  </main>
+
+  <!-- Interactive enhancements for markdown content -->
+  <MermaidInit />
+  <CodeBlockEnhancer />
+  <SectionReveal />
+
+  <!-- Presentation Mode (reveal.js) — reads article HTML client-side -->
+  <PresentationMode
+    client:idle
+    contentHtml=""
+    title={title}
+    seriesName={series?.name || seriesSlug}
+    lessonMeta={lessonMetaStr}
+    accentColor={theme.accent}
+  />
+
+  <!-- Dev-only embedded terminal panel (ADR-0003). -->
+  {isDev && <TerminalPanel client:idle />}
+
+  <!-- Script: Adjust main content margins based on sidebar state -->
+  <script is:inline>
+  (function() {
+    const main = document.getElementById('main-content');
+    if (!main) return;
+
+    function adjustMargins() {
+      // Only apply margins on larger screens
+      if (window.innerWidth < 1024) {
+        main.style.marginLeft = '0';
+        main.style.marginRight = '0';
+        return;
+      }
+
+      const html = document.documentElement;
+      const leftCollapsed = html.getAttribute('data-sidebar-left') === 'collapsed';
+      const rightCollapsed = html.getAttribute('data-sidebar-right') === 'collapsed';
+
+      main.style.marginLeft = leftCollapsed ? '0' : '18rem';
+      main.style.marginRight = rightCollapsed ? '0' : '18rem';
+    }
+
+    // React to sidebar toggle events fired by FloatingSidebar
+    window.addEventListener('sidebar-toggle', adjustMargins);
+    window.addEventListener('resize', adjustMargins);
+    document.addEventListener('DOMContentLoaded', adjustMargins);
+
+    // Also observe attribute changes on <html> as a safety net
+    const observer = new MutationObserver(adjustMargins);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-sidebar-left', 'data-sidebar-right'],
+    });
+
+    adjustMargins();
+  })();
+  </script>
+</BaseLayout>

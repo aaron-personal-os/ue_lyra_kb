@@ -1,0 +1,28 @@
+name: UE 框架系列
+slug: ue-framework
+description: UE 游戏框架分层架构详解，从引擎层到玩家系统
+difficulty: beginner → intermediate
+ue_version: "5.7"
+total_lessons: 16
+estimated_hours: 20
+prerequisites:
+  - concept: C++ 基础
+  - concept: 游戏引擎基本概念
+learning_path:
+  - stage: 总览
+    lessons: [00-UE框架概述, 01-UE游戏主循环详解]
+  - stage: 引擎层
+    lessons: [10-engine-layer/00-UE引擎层详解, 10-engine-layer/01-UGameInstance详解]
+  - stage: 世界层
+    lessons: [20-world-layer/00-UWorld详解, 20-world-layer/01-ULevel与LevelStreaming详解]
+  - stage: GameMode 层
+    lessons: [30-gamemode-layer/00-AGameModeBase详解, 30-gamemode-layer/01-AGameStateBase详解]
+  - stage: Actor 系统
+    lessons: [40-actor-system/00-AActor架构概述, 40-actor-system/01-AActor完整生命周期]
+  - stage: 玩家系统
+    lessons: [50-player-system/00-APawn与ACharacter详解, 50-player-system/01-AController详解]
+  - stage: Tick 系统
+    lessons: [60-tick-system/00-Tick系统架构概述, 60-tick-system/01-FTickFunction与组件Tick详解]
+  - stage: Lyra 案例
+    lessons: [70-lyra-case-study/00-Lyra架构总览, 70-lyra-case-study/01-Lyra中的GameMode与Player系统实现]
+tags: [UE框架, 架构, 入门]

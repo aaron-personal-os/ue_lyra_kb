@@ -1,0 +1,41 @@
+# PCG（Procedural Content Generation）程序化内容生成框架教程系列
+# 基于 UE 5.7 引擎源码深度分析
+
+id: pcg
+title: "PCG（Procedural Content Generation）程序化内容生成框架从入门到实战"
+description: "系统学习 UE5 PCG 框架的核心概念、组件系统、图表构建、点生成、网格生成、过滤修改、高级技术与性能优化"
+difficulty_range: [beginner, advanced]
+ue_version: "5.7"
+total_lessons: 11
+estimated_hours: 8
+prerequisites:
+  - series: ue-framework
+    minimum: 00-PCG程序化内容生成框架教程系列
+  - concept: UE 基础操作
+  - concept: 蓝图基础
+  - concept: C++ 基础（可选，用于理解源码）
+learning_path:
+  - stage: 入门阶段
+    description: "理解 PCG 是什么、核心组件、基础操作流程"
+    lessons:
+      - 00-PCG程序化内容生成框架教程系列
+      - 01-什么是PCG程序化内容生成
+      - 02-PCG核心组件详解
+  - stage: 基础实践
+    description: "掌握 PCG 数据类型、图表基础、常用节点、表面采样"
+    lessons:
+      - 03-PCG数据类型详解
+      - 04-PCG图表基础
+      - 05-常用PCG节点详解
+      - 06-表面采样实战
+  - stage: 进阶技术
+    description: "学习实例生成器、生物群系创建"
+    lessons:
+      - 07-实例生成器
+      - 08-生物群系创建
+  - stage: 高级主题
+    description: "高级技巧、性能优化"
+    lessons:
+      - 09-高级技巧
+      - 10-性能优化
+tags: [pcg, procedural, content-generation, landscape, foliage]

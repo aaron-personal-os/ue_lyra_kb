@@ -1,0 +1,48 @@
+# project-wiki — 检索引擎配置
+# 移植自 ProjectWiki v2.0 Tier 0/1/2 设计方案
+# 详见 reference/retrieval-engine-design.md
+
+project:
+  name: LyraStarterGame
+  language: zh
+  wiki_root: Docs/
+
+# 顶层目录分类（替代源方案的 brain 概念）
+# Lyra 项目用数字前缀分类，不区分 brain
+categories:
+  available:
+    - 00-meta
+    - 10-architecture
+    - 20-modules
+    - 30-tutorials
+    - 40-runbooks
+    - 50-references
+    - 60-decisions
+    - 70-topics
+    - 80-gotchas
+    - 90-snapshots
+  default: 30-tutorials
+
+retrieval:
+  engine: auto          # grep | sqlite | hybrid | auto
+  auto_thresholds:
+    tier1_at: 200       # 页数 > 200 → 启用 SQLite FTS5（本项目已 346 页，默认走 Tier 1）
+    tier2_at: 3000      # 页数 > 3000 → 启用向量检索
+
+  embedding:
+    provider: openai    # openai | ollama | custom
+    api_url: "https://api.openai.com/v1/embeddings"
+    api_key_env: "OPENAI_API_KEY"
+    model: "text-embedding-3-small"
+    dimensions: 1536
+    batch_size: 50
+
+  search:
+    top_k: 5
+    rrf_k: 60           # RRF 融合参数
+    vector_weight: 1.0
+    bm25_weight: 1.0
+
+# 数据库与缓存路径（相对仓库根）
+paths:
+  db: ".codebuddy/skills/project-wiki/.cache/wiki.db"

@@ -1,0 +1,32 @@
+name: "UE 移动系统深度解析"
+slug: movement-system
+description: "从 UCharacterMovementComponent 架构到 Lyra 实战，系统学习 UE 角色移动的完整技术体系"
+difficulty_range: [beginner, advanced]
+ue_version: "5.7"
+total_lessons: 10
+estimated_hours: 10
+prerequisites:
+  - series: ue-framework
+    minimum: 00-UE移动系统深度解析系列概览
+  - concept: C++ 基础
+  - concept: Pawn / Character 基础
+learning_path:
+  - stage: 基础架构
+    description: "理解 CMC 在 UE 架构中的位置与核心机制"
+    lessons: [00-UE移动系统深度解析系列概览, 01-UCharacterMovementComponent架构详解]
+  - stage: 移动模式与输入
+    description: "MovementMode 切换机制与输入到移动的完整链路"
+    lessons: [02-MovementMode详解, 03-输入到移动的全链路]
+  - stage: 移动物理与数学
+    description: "摩擦力、加速度、空中控制等物理参数详解"
+    lessons: [04-移动物理与数学, 05-跳跃飞行游泳机制]
+  - stage: 网络同步与高级主题
+    description: "移动网络同步机制、自定义移动模式、Root Motion"
+    lessons: [06-移动网络同步机制, 07-自定义移动模式CustomMovementMode, 08-RootMotion机制]
+  - stage: Lyra 实战
+    description: "Lyra 项目对移动系统的扩展与实践"
+    lessons: [09-Lyra移动系统实战]
+  - stage: Crouch 机制
+    description: "蹲伏系统：引擎层实现、对移动/碰撞/相机的影响、Lyra 中的 GAS 集成"
+    lessons: [10-蹲伏-Crouch机制]
+tags: [movement, cmc, character, network, lyra, crouch]

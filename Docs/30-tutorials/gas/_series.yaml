@@ -1,0 +1,24 @@
+name: GAS 教程系列
+slug: gas
+description: 基于 UE 5.7 的 Gameplay Ability System 完整教程
+difficulty: intermediate → advanced
+ue_version: "5.7"
+total_lessons: 26
+estimated_hours: 40
+prerequisites:
+  - series: ue-framework
+    minimum: 00-overview
+  - concept: C++ 基础
+  - concept: UE 蓝图基础
+learning_path:
+  - stage: 入门
+    lessons: [00-GAS系统总览]
+  - stage: GA（GameplayAbility）
+    lessons: [01-GA简介与配置, 02-GA执行流程详解, 03-GA输入绑定, 04-GA事件机制, 05-GA目标信息]
+  - stage: GE（GameplayEffect）
+    lessons: [06-GE简介与配置, 07-GE运行流程详解, 08-GE数值修正, 09-GE属性捕获, 10-GE属性修正, 11-GE自定义执行类, 12-GE组件, 13-GE匹配查询, 14-GE网络复制]
+  - stage: Tag 系统
+    lessons: [15-Tag简介与配置, 16-Tag收集与构建, 17-Tag集合容器, 18-Tag匹配查询, 19-Tag网络复制]
+  - stage: 高级主题
+    lessons: [20-GC简介与配置, 21-GC运行时详解, 22-AbilityTask详解, 23-PredictionKey预判机制, 24-GE上下文信息, 25-Attribute属性详解, 26-Lyra综合案例死亡能力链]
+tags: [GAS, GameplayAbility, GameplayEffect, UE5.7]

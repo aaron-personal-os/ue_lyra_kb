@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "TaskCreate",
+      "TaskUpdate",
+      "TaskList",
+      "TaskGet",
+      "WebFetch",
+      "WebSearch",
+      "Skill",
+      "ToolSearch",
+      "DeferExecuteTool",
+      "SendMessage",
+      "AskUserQuestion"
+    ],
+    "Bash": {
+      "mode": "auto-approve",
+      "allowedCommands": [
+        "git status",
+        "git diff*",
+        "git log*",
+        "git branch*",
+        "ls*",
+        "pwd",
+        "cat*",
+        "mkdir*",
+        "rm -rf *",
+        "echo*"
+      ]
+    },
+    "Write": "auto-approve",
+    "Edit": "auto-approve"
+  }
+}

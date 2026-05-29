@@ -1,0 +1,205 @@
+- GamePlayAbilitySystem(GAS) UE4自带的一个插件 角色技能系统框架
+- 技能组件 AbilitySystemComponent(ASC)
+    - 用于管理各种技能和处理技能系统的所有交互
+    - 继承自GameplayTasksComponent
+    - 管理GA GE AttribueSet
+    - 附加在需要拥有技能的角色上
+    - 可以从UAbilitySystemComponent继承实现适合自己项目的ASC组件
+    - 组件的拥有者 OwnerActor ASC的释放者 AvatarActor 两者建议设置为同一个Actor
+    - 拥有ASC的Actor需要实现接口IAbilitySystemInterface 并调用InitAbilityActorInfo()方法初始化ASC
+    - GiveAbility 赋予技能
+    - ClearAbility 移除技能
+    - TryActivateAbility 尝试激活技能
+    - CancelAbility 取消中断技能
+    - NotifyAbilityEnded
+    - ClearAbility/ClearAllAbility/TryActivateAbilitiesByTag/TryActivateAbility/CancelAbility/ApplyGameplayEffectSpecToTarget
+    - UAbilitySystemBlueprintLibrary::SendGameplayEventToActor 通过GameplayTag触发ASC上的GA上的GameplayEventTriggeredAbilities/GenericGameplayEventCallbacks/GameplayEventTagContainerDelegates
+- 技能 GameplayAbility(GA)
+    - 角色可以使用的能力(技能)
+    - 继承自UObject
+    - 可以为GA写一些通用的C++基类 具体的GA还是建议使用蓝图制作 方便配置
+    - GA:攻击技能 跳跃 开门 捡东西等
+    - 在GA中可以触发不同的技能任务(AbilityTask) 他们承担诸如播放动画 角色移动等持续一段时间的功能
+    - CanActivateAbility
+    - CallActivateAbility：
+    - PreActivate：
+    - ActivateAbility：
+    - CommitAbility：执行消耗
+    - EndAbility
+        - 停止Task
+        - 每次执行都生成实例 则结束时移除实例(NotifyAbilityEnded)
+    - Ability需要主动调用EndAbility 否则这个能力一直处于激活状态
+    - GameplayAbilitySpec
+        - 具体的技能实例对象 运行时对象数据 蓝图创建的GA只是一个数据配置模板(表格配置)
+        - 包含FGameplayAbilitySpecHandle GA等其他信息 是GA运行时数据和操作的封装
+    - FGameplayAbilitySpecHandle
+        - 是FGameplayAbilitySpec的句柄
+        - 保持一个唯一的int32变量作为FGameplayAbilitySpec唯一标识编号
+    - 给角色技能的时候是创建了一个GameplayAbilitySpec作为具体的技能对象在其内部会有AbilityInstance变量保存实例对象
+    - 服务端生成GA实例并同步复制到OwningClient 但是不会复制到Simulated clients
+    - 模拟客户端 不会执行GA Simulated clients will not run GameplayAbilities
+    - ASC允许我们直接绑定用户输入到GameplayAbilities上，当我们绑定完毕之后检测到输入的ASC会自动帮我们激活被绑定对象的GA。被绑定的`InputAction则是用到了内置的检测输入的AbilityTask
+        - AbilitySystemComponent->BindAbilityActivationToInputComponent(PlayerInputComponent, FGameplayAbilityInputBinds(FString("ConfirmTarget"), FString("CancelTarget"), FString("EGDAbilityInputID"), static_cast<int32>(EGDAbilityInputID::Confirm), static_cast<int32>(EGDAbilityInputID::Cancel)));
+    - 不要忘了在GA的逻辑执行完之后调用EndAbility()。除非是把这个Ability作为被动技能。但是即使如此在生命周期结束前调用一下还是稳妥一些。
+    - 使用GA来实现被动的效果，我们可以在UGameplayAbility::OnAvatarSet()函数中实现 OnAvatarSet()这个函数就类似于BeginPlay()
+    - 配置GA
+        - GA的Tag
+        - 配置冷却和消耗 需要使用的GE
+    - 实例化策略
+        - 不实例化 Non Instanced 直接使用CDO对象[**类默认对象（Class Default Object,简称CDO）**] 慎用
+        - 为每个Actor实例化 InstancedPerActor 每个Actor拥有为自己实例化的能力 比较常用
+        - 每次执行实例化InstancePerExecution 每次执行都会实例化一个能力 消耗最大
+    - AbilityTask
+        - AbilityTask继承自GameplayTask
+        - 能执行Tick GameplayTaskComponent驱动
+        - 可配置任务队列 具备优先级/任务资源抢占
+        - 配合委托可以执行监听回调机制
+        - AbilityTask(GameplayTask)的执行流程
+            - NewAbilityTask->InitTask->ReadyForActivation->PerformActivation->Activate/ActivateInTaskQueue->Pause/Resume->EndTask->OnDestory
+            - ReadyForActivation 写在UK2Node_LatentGameplayTaskCall的构造函数中 会在GameplayTaskCall 蓝图节点的内容执行完后被调用
+            - RequiredResources GameplayTask想要激活必须不可以被其他任务持有锁定的Resource（标记位)
+            - ClaimedResources GameplayTask声明持有的Resource(标记位)
+            - bClaimRequiredResources 是否持有(ClaimedResources )需求的资源(RequiredResources )
+            - bCaresAboutPriority是否关心优先级
+            - 当一个GamplayTask 被设为为有激活需求资源(RequiredResources)/持有资源(ClaimedResources)/关心优先级 则会在准备激活(ReadyForActivation)时先加入GameplayTasksComponent 的具有优先级的任务队列(AddTaskReadyForActivation)
+            - GameplayTasksComponent 的优先级任务队列(TaskPriorityQueue) 会在队列发生变动时 会轮询一次队列 任务满足需求资源(RequiredResources 标记位检测)则激活 轮询的同时将持有的资源(ClaimedResources)标记上
+        - GameplayTasksComponent 是管理GameplayTask组件
+            - ASC继承自GameplayTasksComponent
+            - TickingTasks队列维护激活且需要Tick的GameplayTask
+            - KnownTasks队列是所有激活的GameplayTask
+            - TaskPriorityQueue 优先级任务队列 按优先级依次轮询执行任务的激活 同时对有激活资源(标记位)需求的任务进行检测
+                - 高优先级持有资源会阻挡有激活资源限制的低优先级任务执行 执行过程中并限制资源任务会被挂起
+                - 有资源激活现在的任务需要等待高优先级任务释放对应的持有资源 资源满足了 被挂起的任务会被重新激活恢复
+            - TaskEvents 作为缓存的临时事件队列 当有任务发生变动时会影响到TaskPriorityQueue 队列的执行 先放到该临时事件队列 再对TaskPriorityQueue 进行删减操作
+                - 一个任务的添加或者移除 会导致另外一个任务的激活或者挂起
+                - 有递归检测 避免出现死循环
+            - 常用的AbilityTask
+                - PlayMontageAndWait 播放动作 在动作通知中触发各种效果
+                - WaitGameplayEvent 监听各种GE触发(动作通知 或者其他外部触发)
+    - FGameplayEvent GAS之间传递的数据结构
+    - FGameplayAbilityTargetData
+        - 技能目标的通用型数据结构 通过继承定制实现自己需要的技能目标数据结构 封装了些通用接口 自己根据需求定制数据类型
+        - `FGameplayAbilityTargetData_ActorArray` :具有来源位置信息和目标Actor列表的技能目标数据 适合用于AOE技能的目标信息
+        - `FGameplayAbilityTargetingLocationInfo` 存放FGameplayAbilityTargetData来源方信息 适配不同类型的FGameplayAbilityTargetData
+        - `NetSerialize` 网络序列化接口
+        
+        ![Untitled](http://pic.xyyxr.cn/20260504111151775.png)
+        
+    - FGameplayAbilityTargetDataHandle
+        - FGameplayAbilityTargetData的数据集合数据结构
+    
+    - ARPG Demo的技能使用方式 梳理
+        - 触发技能 比如按键
+        - 启动AbilityTask:Play Montage and Wait For Event
+        - 可以在蒙太奇上添加动画通知 触发效果
+        - 每个技能事先配置了能触发的GE集合和对应GE针对的目标
+        - 通过GameTag (Send GameEvent) 去触发配置的GE
+- 游戏性标签 GamePlayTag
+    - 用于标记描述Ability和Effect等游戏对象 相当于他们的ID
+    - 内部实现基于FName字符串("Item.Weapon.Shoot.Gun") 具有高效查询性能
+    - 可以在项目-Project-GameplayTags中对GameplayTag进行编辑
+    - 不仅用于技能系统 也可以用于其他的层级标签
+    - 优点:基于层级标签给对象快速标记和归类 便于管理
+    - 缺点:完全由用户自定义 需要设计一个好的分类结构
+    - 作为对象的ID 用于查询对象
+    - 用于标记对象的状态 代替枚举的功能
+    - FGameplayTag是虚幻提供GameplayTag的类型 创建的变量只能使用在DefaultGameplayTag.ini创建好的Tag
+    - 一般而言 C++中的GameplayTag更希望作为类的成员变量 然后在蓝图的细节面板中配置
+    - GameplayTagContainer
+        - GameplayTag的容器 用于存放多个GameplayTag
+        - 标签集合(GameplayTags) 包括展开的父标签信息(ParentTags)用于加速查找
+    - GameplayTagQuery 这个是用于在多个地方执行相同的复杂测试
+    - FTagContainerAggregator:标签集合联合器 存放多个标签集合(CapturedActorTags,CapturedSpecTags,ScopedTags) 负责联合多个标签集合
+    - FGameplayTagNode:GamePlayTag 简单树状节点 保存GameTag的树状信息
+    - FGameplayTagRequirements
+        - 封装需要的标签和忽略的标签
+        - 要求传进来的集合包含所有需求标签集合的所有标签且不包含忽略集合里的任一标签
+    - FGameplayEffectQuery
+        - 比FGameplayTagRequirements 更强大的查询匹配机制
+    - MatchesTag /MatchesTagExact/HasTag/HasTagExact
+- 游戏性效果 GameplayEffect(GE)
+    - GameplayEffect 本身是一个纯数据配置类 用于修改各种数值状态
+    - GAS系统的BUFF类
+    - 一般通过改变自己或者目标的属性值和标签(GameplayTag)来实现
+    - FGameplayEffectSpec
+        - 是GE 运行时的对象
+        - 通过const UGameplayEffect* InDef, const FGameplayEffectContextHandle& InEffectContext, float InLevel 构造
+        - const UGameplayEffect* InDef：GE只是一个数据模板(表格配置文件 const*)
+        - FGameplayEffectContextHandle: 封装FGameplayEffectContext及其子类的的智能指针及一些操作接口 方便实现多态(基类指针)和复制操作
+        - FGameplayEffectContext:存放GE 发送者的一些相关信息
+            - Instigator 发送者Actor(最终来源)
+            - EffectCauser 真正造成影响的Actor (比如 子弹 武器)
+            - SourceObject 创建者
+    - FGameplayEffectSpecHandle
+        - 封装FGameplayEffectSpec及其子类的智能指针
+        - 通过Handle去引用FGameplayEffectSpec
+    - FActiveGameplayEffectsContainer
+        - 激活的GE实例的集合
+        - 各种GE实例的操作接口 激活/执行修改器/超时检测/周期触发等
+        - InternalOnActiveGameplayEffectAdded
+        - OnOwnerTagChange
+    - GE有发起者instigator 和 拥有者Owner
+    - 蓝图创建的是一个数据模板 GA和ASC提供了方法用于添加和移除GE
+    - ASC接口 ApplyGameplayEffectSpecToSelf/ApplyGameplayEffectSpecToTarget
+    - GE数据配置说明
+        - Duration Policy 持续函数 :Instance(瞬时的) Infinite(永久的) HasDuration(限时的)
+            - 触发GE的接口ApplyGameplayEffectSpec通过FTimerManager设置定时器 来做超时检测 并保存定时器句柄DurationHandle
+            - 超时定时器执行委托UAbilitySystemComponent::CheckDurationExpired 最终调用的是FActiveGameplayEffectsContainer::CheckDuration
+            - 检测到超时之后 根据叠加配置 进行移除操作InternalRemoveActiveGameplayEffect(叠加-1 叠加数降到0 或者无叠加数 直接移除GE实例)
+            - 叠加数不为0刷新下开始时间和持续时间 继续触发定时器
+            - 如果GE实例要移除了(无叠加数了) 还需要结束周期触发的定时器
+        - Modifiers 修改器:配置对Attributes的修改 默认提供多了多种修改方式
+        - Executions 自定义修改器:Modifiers 不满足时 可以自定义计算方式
+        - Conditional Gameplay Effects（附带多个Effect）：可在该Effect释放时，附带额外的Effect
+        - Period 周期性 永久和限时效果可以配置周期性(定时触发)
+            - 没有周期
+            - 按周期执行 循环效果
+            - 按周期执行 循环效果 但会在开始时执行一次
+            - 触发GE的接口ApplyGameplayEffectSpec通过FTimerManager设置定时器 来做周期触发检测 并保存定时器句柄PeriodHandle
+            - 周期触发定时器执行的委托UAbilitySystemComponent::ExecutePeriodicEffect 最终调用的 FActiveGameplayEffectsContainer::ExecutePeriodicGameplayEffect 定时触发Modifiers Executions
+            - OnPeriodicGameplayEffectExecuteOnSelf /OnPeriodicGameplayEffectExecuteOnTarget 发起者和拥有者的AbilitySystemComponent周期触发的委托回调
+        - Stacking叠加
+            - 超时清除实例(无叠加)
+            - 超时叠加数-1 并刷新时间
+            - 超时重新刷新时间(无叠加移除 周期为的永久)
+        - Overflow溢出
+    - ApplyGameplayEffectSpecToSelf
+        - 先判断执行权限(NetworkAuthority)
+        - 是否会被当前已经激活GE的免疫(标签判定)
+        - 检测自己身上的标记是否满足GE添加需求的标记且没有移除的标记
+        - 执行简单的属性修改Modifiers
+        - 添加附带子效果Conditional Gameplay Effects
+        - 通知发送者和接收者添加成功
+- 属性集 AttributeSet
+    - 是表示Actor的各种属性值集合 保存在ASC中 是GE的主要作用目标
+    - 建议建一个通用的AttributeSet 再为特殊的角色新建
+    - 一个Attribute是由两个值组成的，BaseValue和CurrentValue。
+        - BaseValue : 代表着Attribute永久变更的值(the permanent value)，相对于CurrentValue而言。
+        - CurrentValue : 代表着Attribute的BaseValue加上来自GameplayEffect的临时变更的值。
+    - 将AttrbuteSet添加到能力组件上AbilitySystemComponent->AddSet<FMyAttributeSet>();
+    - 属性初始化MyAttributeSet->InitHealth(100.f);
+    - UAbilitySystemComponent::GetGameplayAttributeValueChangeDelegate(FGameplayAttribute Attribute)函数，该函数会返回一个代理(delegate) 用于绑定属性变化的代理
+    - Derived Attributes 继承属性 当一个Attribute依赖于其他的Attribute的时候，这个Attribute就是一个Derived Attribute
+    - ATTRIBUTE_ACCESSORS 宏 属性Get/Set等访问操作
+    - 我们可以拥有复数个AttributeSet，但是却不能让ASC拥有相同类的复数个AttributeSet。如果添加了同一个类的AttributeSet，它会不知道指的是哪一个
+- 游戏性显示效果GameplayCue (客户端表现效果)
+    - 用于触发外部事件 比如粒子特效 声音 更复杂的 ClientImpact之类的客户端表现效果等
+    - GameplayCueNotify_Actor 继承自Actor 需要实例化 实例化后可以HandleGameplayCue 响应OnActive/WhileActive/OnExecute/OnRemove等状态变更 可以Tick
+    - GameplayCueNotify_Static 继承自UObject 不需实例化
+    - GAS完全通过GamplayTag来触发GameplayCue
+    - GE可以配置GameplayCue
+    - AbilitySystemComponent相关操作接口 AddGameplayCue/ExecuteGameplayCue/RemoveGameplayCue/InvokeGameplayCueEvent
+    - GameplayCueManager 单例管理器
+        - 调度Gameplay Cues和创建GameplayCueNotify_Actor
+        - GetInstancedCueActor获取GameplayCueNotify_Actor实例对象 没有则新建一个
+    - 有专门用来创建Gameplay Cue的自定义编辑器GameplayCueEditor
+        - GameplayCue是以GameplayTag作为唯一的标识，并且Tag必须以GameplayCue开头
+        - GameplayCue Handler 用于处理该GameplayCue的执行逻辑 需要创建GameplayCueNotify类
+- 启用GAS基本步骤
+    - 启用GameplayAbilities 插件
+    - 在项目的Build.cs文件中添加依赖模块 GameplayAbilities/GameplayTags/GameplayTasks
+    - 为角色添加AbilitySystemCompont
+    - 添加GameplayTags 制作AttributeSet/GameplayAbility/GameplayTask/GameplayEffect等 丰富技能库
+- GAS 建议通过动作上的动画通知来触发各种GE/GameplayCue 效果(通过GameplayTags)
+    - SendGameplayEventToActor 向Actor上的ASC发送GameTag和GameEvent
+    - ASC接收后会尝试触发GameplayAbility、还有各种监听GameTag的回调(比如AbilityTask PlayMontageAndWait监听对应的Tag Event 触发对应的GamePlayEffect ApplyGameplayEffectSpec )

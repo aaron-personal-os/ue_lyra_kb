@@ -1,0 +1,16 @@
+{
+  "userIgnoreFilters": [
+    "/[bB][iI][nN][aA][rR][iI][eE][sS]/",
+    "/[cC][oO][nN][fF][iI][gG]/",
+    "/[dD][eE][rR][iI][vV][eE][dD][dD][aA][tT][aA][cC][aA][cC][hH][eE]/",
+    "/[cC][oO][nN][tT][eE][nN][tT]/",
+    "/[iI][nN][tT][eE][rR][mM][eE][dD][iI][aA][tT][eE]/",
+    "/[pP][lL][aA][tT][fF][oO][rR][mM][sS]/",
+    "/[pP][lL][uU][gG][iI][nN][sS]/",
+    "/[sS][aA][vV][eE][dD]/",
+    "/[sS][oO][uU][rR][cC][eE]/",
+    "/[tT][oO][oO][lL][sS][sS][cC][rR][iI][pP][tT]/",
+    "/.[gG][iI][tT]/"
+  ],
+  "showUnsupportedFiles": false
+}

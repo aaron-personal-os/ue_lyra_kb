@@ -1,0 +1,391 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Navbar from '@/components/layout/Navbar.astro';
+import { getAllSeries } from '@/lib/series';
+import { getSeriesTheme } from '@/lib/theme';
+
+// The canonical learning order from Docs/00-meta/learning-paths.md
+const SERIES_ORDER: string[] = [
+  'lyra-practical',
+  'ue-framework',
+  'movement-system',
+  'gas',
+  'network-sync',
+  'animation',
+  'niagara',
+  'game-feature',
+  'modular-gameplay',
+  'camera-system',
+  'performance-optimization',
+  'garbage-collection',
+  'resource-management',
+  'input-system',
+  'ue-reflection',
+  'editor-extension',
+  'config-ini',
+  'mutable',
+  'localization-i18n',
+  'ai-behavior',
+  'blueprint-system',
+  'umg',
+  'pcg',
+];
+
+const rawSeries = getAllSeries();
+
+// Sort: ordered slugs first, unlisted series appended at the end
+const orderMap = new Map(SERIES_ORDER.map((s, i) => [s, i]));
+const allSeries = [...rawSeries].sort((a, b) => {
+  const ia = orderMap.get(a.slug) ?? 9999;
+  const ib = orderMap.get(b.slug) ?? 9999;
+  if (ia !== ib) return ia - ib;
+  return a.name.localeCompare(b.name);
+});
+
+const totalHours = allSeries.reduce((sum, s) => sum + (s.estimated_hours || 0), 0);
+const totalLessons = allSeries.reduce((sum, s) => sum + (s.total_lessons || 0), 0);
+
+// Route number labels — ALL series get a number (ordered ones first, rest appended)
+function routeLabel(idx: number): string {
+  return String(idx + 1).padStart(2, '0');
+}
+---
+
+<BaseLayout title="Home">
+  <Navbar />
+
+  <!-- Hero Section -->
+  <section class="home-hero relative flex flex-col items-center justify-center overflow-hidden">
+    <!-- Background -->
+    <div class="absolute inset-0 bg-gradient-to-b from-indigo-950 via-indigo-950/90 to-[var(--surface-0)]"></div>
+    <div class="absolute inset-0 hero-grid pointer-events-none"></div>
+    <div class="absolute top-[-10%] left-[10%] w-[30rem] h-[30rem] bg-indigo-500/15 rounded-full blur-[100px]"></div>
+    <div class="absolute bottom-[-10%] right-[10%] w-[25rem] h-[25rem] bg-violet-500/15 rounded-full blur-[100px]"></div>
+    <div class="absolute top-[30%] right-[25%] w-[12rem] h-[12rem] bg-cyan-500/10 rounded-full blur-[60px]"></div>
+
+    <div class="hero-content relative z-10 max-w-5xl mx-auto px-6 text-center">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold uppercase tracking-wider mb-6 backdrop-blur-sm"
+           style="background: rgba(99,102,241,0.12); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.3);">
+        <span class="inline-block w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
+        Interactive Knowledge Base
+      </div>
+
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.12]">
+        UE & Lyra<br class="hidden sm:block" /> 教程系列
+      </h1>
+      <p class="mt-5 text-lg md:text-xl text-white/70 max-w-2xl mx-auto leading-relaxed">
+        从引擎框架架构到项目实战，系统性学习 Unreal Engine 5 核心技术
+      </p>
+
+      <!-- Stats -->
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-4 text-sm">
+        <span class="home-stat">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          {allSeries.length} 系列
+        </span>
+        <span class="home-stat">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          {totalLessons} 课时
+        </span>
+        <span class="home-stat">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          {totalHours}+ 小时
+        </span>
+      </div>
+
+      <!-- CTA -->
+      <div class="mt-10 flex items-center justify-center gap-3">
+        <a href="#series-grid" class="home-cta home-cta--primary">
+          浏览系列
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </a>
+        <a href="/search" class="home-cta home-cta--ghost">
+          搜索教程
+        </a>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <a href="#series-grid" class="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/40 hover:text-white/70 transition-colors" aria-label="Scroll">
+      <svg class="w-6 h-6 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+      </svg>
+    </a>
+  </section>
+
+  <!-- Series Grid -->
+  <section id="series-grid" class="max-w-7xl mx-auto px-6 py-16 md:py-20">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-bold text-[var(--text-primary)] tracking-tight">学习路线</h2>
+      <p class="mt-2 text-sm text-[var(--text-secondary)]">按推荐顺序排列，循序渐进掌握 UE5 全栈技术</p>
+    </div>
+
+    <div class="series-grid">
+      {allSeries.map((series, idx) => {
+        const theme = getSeriesTheme(series.slug);
+        const label = routeLabel(idx);
+        const difficultyStr = Array.isArray(series.difficulty_range)
+          ? series.difficulty_range.join(' → ')
+          : series.difficulty_range || '';
+        return (
+          <a
+            href={`/series/${series.slug}`}
+            class="series-card group"
+            style={`--card-accent: ${theme.accent};`}
+          >
+            <!-- Top accent line -->
+            <div class="series-card__accent"></div>
+
+            <div class="series-card__body">
+              <!-- Route label + title -->
+              <div class="series-card__header">
+                <span class="series-card__route">{label}</span>
+                <h3 class="series-card__title">{series.name}</h3>
+              </div>
+
+              <!-- Description -->
+              <p class="series-card__desc">{series.description}</p>
+
+              <!-- Bottom meta -->
+              <div class="series-card__footer">
+                <span class="series-card__chip">
+                  {series.total_lessons} 课
+                </span>
+                {!!series.estimated_hours && (
+                  <span class="series-card__chip">
+                    ~{series.estimated_hours}h
+                  </span>
+                )}
+                {difficultyStr && (
+                  <span class="series-card__chip series-card__chip--accent">
+                    {difficultyStr}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <!-- Hover arrow -->
+            <span class="series-card__arrow" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </span>
+          </a>
+        );
+      })}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ---------- Hero ---------- */
+  .home-hero {
+    min-height: 100vh;
+  }
+
+  .hero-grid {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.7) 0%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.7) 0%, transparent 70%);
+  }
+
+  .home-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.78);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  .home-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.7rem 1.4rem;
+    border-radius: 9999px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  }
+  .home-cta--primary {
+    color: #0f1117;
+    background: #a5b4fc;
+    box-shadow: 0 8px 24px -8px rgba(165, 180, 252, 0.5);
+  }
+  .home-cta--primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px -8px rgba(165, 180, 252, 0.65);
+  }
+  .home-cta--ghost {
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .home-cta--ghost:hover {
+    background: rgba(255, 255, 255, 0.14);
+  }
+
+  .hero-content {
+    transition: opacity 0.1s ease, transform 0.1s ease;
+  }
+
+  /* ---------- Grid ---------- */
+  .series-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+  }
+
+  @media (max-width: 640px) {
+    .series-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------- Card ---------- */
+  .series-card {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    border-radius: 14px;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    text-decoration: none;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .series-card:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--card-accent) 50%, var(--border));
+    box-shadow:
+      0 12px 28px -12px color-mix(in srgb, var(--card-accent) 40%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--card-accent) 20%, transparent);
+  }
+
+  .series-card__accent {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--card-accent), color-mix(in srgb, var(--card-accent) 40%, transparent));
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+  }
+  .series-card:hover .series-card__accent {
+    opacity: 1;
+  }
+
+  .series-card__body {
+    flex: 1;
+    padding: 1.25rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  .series-card__header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .series-card__route {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: #0f1117;
+    background: var(--card-accent);
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px -2px color-mix(in srgb, var(--card-accent) 60%, transparent);
+  }
+
+  .series-card__title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.35;
+    transition: color 0.18s ease;
+  }
+  .series-card:hover .series-card__title {
+    color: var(--card-accent);
+  }
+
+  .series-card__desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex: 1;
+  }
+
+  .series-card__footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: auto;
+    padding-top: 0.5rem;
+  }
+
+  .series-card__chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+  }
+  .series-card__chip--accent {
+    color: var(--card-accent);
+    background: color-mix(in srgb, var(--card-accent) 10%, transparent);
+    border-color: color-mix(in srgb, var(--card-accent) 30%, transparent);
+  }
+
+  .series-card__arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.75rem;
+    color: var(--text-secondary);
+    opacity: 0;
+    transition: opacity 0.18s ease, transform 0.18s ease, color 0.18s ease;
+  }
+  .series-card:hover .series-card__arrow {
+    opacity: 1;
+    color: var(--card-accent);
+    transform: translateX(2px);
+  }
+</style>
+
+<script>
+  // Parallax fade effect for hero content on scroll
+  const heroContent = document.querySelector('.hero-content') as HTMLElement;
+  if (heroContent) {
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+      const opacity = Math.max(0, 1 - scrollY / 400);
+      const translateY = -(scrollY * 0.3);
+      heroContent.style.opacity = String(opacity);
+      heroContent.style.transform = `translateY(${translateY}px)`;
+    }, { passive: true });
+  }
+</script>

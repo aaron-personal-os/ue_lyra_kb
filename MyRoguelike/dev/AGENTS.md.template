@@ -1,0 +1,35 @@
+# MyRoguelikeGame — AI 协作说明
+
+本文件为 UE 游戏工程仓库的 AI 引导文档。复制到 `MyRoguelikeGame/` 根目录并重命名为 `AGENTS.md`。
+
+## 项目定位
+
+单机 3D 动作技能型 roguelike。核心战斗使用 Gameplay Ability System，数据驱动内容。
+
+## 关联仓库
+
+本工程与知识库仓库 `ue_lyra_kb` 通过 Cursor 多根工作区绑定。开发时应同时参考：
+
+| 资源 | 位置（工作区名） | 用途 |
+|------|-----------------|------|
+| Lyra 技术教程 | `知识库与设计文档/Docs/` | 理解 UE/Lyra 机制 |
+| 项目设计文档 | `知识库与设计文档/MyRoguelike/` | 架构、决策、路线图 |
+| 学习导读 | `知识库与设计文档/MyRoguelike/learning/` | 按阶段索引的推荐阅读 |
+
+## AI 行为约定
+
+1. **实现功能前**：先查 `知识库与设计文档/MyRoguelike/learning/` 中对应阶段的导读，了解相关 Lyra 机制和单机差异。
+2. **引用 KB 内容时**：检查对应阶段的导读文件是否已包含该链接；若缺失，追加到 `知识库与设计文档/MyRoguelike/learning/phaseN-*.md`。
+3. **架构决策**：重大取舍写入 `知识库与设计文档/MyRoguelike/decisions/` 作为 ADR，不在本仓库重复记录。
+4. **单机优先**：跳过 Lyra 教程中关于网络复制、服务器权威、匹配系统的章节。
+
+## 技术基线
+
+详见 `知识库与设计文档/MyRoguelike/decisions/0001-tech-stack-selection.md`。
+
+核心约定：
+
+- GAS 本地权威，ASC 挂在 Character 上（非 PlayerState）。
+- Relic 复用 AbilitySet 数据驱动授予模式。
+- RunManager 用 `UGameInstanceSubsystem`。
+- 不引入 Experience / GameFeature / 联机框架。

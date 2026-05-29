@@ -1,0 +1,126 @@
+---
+interface Props {
+  headings: { depth: number; slug: string; text: string }[];
+}
+
+const { headings } = Astro.props;
+
+// Filter to h2 and h3 only
+const tocHeadings = headings.filter(h => h.depth === 2 || h.depth === 3);
+---
+
+<nav class="toc" aria-label="Table of contents">
+  {tocHeadings.length === 0 ? (
+    <p class="text-xs text-[var(--text-secondary)] italic">本页暂无目录</p>
+  ) : (
+    <ul class="space-y-0.5 text-sm">
+      {tocHeadings.map((heading) => (
+        <li
+          class:list={[
+            'border-l-2 border-transparent transition-colors duration-150',
+            heading.depth === 3 ? 'ml-3' : '',
+          ]}
+          data-toc-item
+          data-heading-slug={heading.slug}
+        >
+          <a
+            href={`#${heading.slug}`}
+            class="block py-1.5 px-3 rounded-r-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-2)] transition-colors leading-snug"
+            data-toc-link
+          >
+            {heading.text}
+          </a>
+        </li>
+      ))}
+    </ul>
+  )}
+</nav>
+
+<script is:inline>
+(function() {
+  const tocItems = document.querySelectorAll('[data-toc-item]');
+  if (!tocItems.length) return;
+
+  const headingSlugs = Array.from(tocItems).map(item => item.dataset.headingSlug);
+  let activeSlug = '';
+
+  function setActive(slug) {
+    if (slug === activeSlug) return;
+    activeSlug = slug;
+
+    tocItems.forEach(item => {
+      const link = item.querySelector('[data-toc-link]');
+      if (item.dataset.headingSlug === slug) {
+        item.style.borderColor = 'var(--accent)';
+        if (link) {
+          link.style.color = 'var(--accent)';
+        }
+      } else {
+        item.style.borderColor = 'transparent';
+        if (link) {
+          link.style.color = '';
+        }
+      }
+    });
+  }
+
+  // IntersectionObserver for scroll-spy
+  const observer = new IntersectionObserver(
+    (entries) => {
+      // Find the first heading that is intersecting (visible)
+      const visibleEntries = entries.filter(e => e.isIntersecting);
+
+      if (visibleEntries.length > 0) {
+        // Use the one closest to the top of the viewport
+        const topEntry = visibleEntries.reduce((prev, curr) => {
+          return prev.boundingClientRect.top < curr.boundingClientRect.top ? prev : curr;
+        });
+        setActive(topEntry.target.id);
+      } else {
+        // If no heading is visible, find which section we're in
+        // by checking which heading was last scrolled past
+        const scrollY = window.scrollY;
+        let lastPassedSlug = '';
+
+        for (const slug of headingSlugs) {
+          const el = document.getElementById(slug);
+          if (el && el.offsetTop <= scrollY + 100) {
+            lastPassedSlug = slug;
+          }
+        }
+
+        if (lastPassedSlug) {
+          setActive(lastPassedSlug);
+        }
+      }
+    },
+    {
+      rootMargin: '-64px 0px -60% 0px',
+      threshold: 0,
+    }
+  );
+
+  // Observe all heading elements referenced in the TOC
+  headingSlugs.forEach(slug => {
+    const el = document.getElementById(slug);
+    if (el) observer.observe(el);
+  });
+
+  // Set initial active on load
+  requestAnimationFrame(() => {
+    const scrollY = window.scrollY;
+    let lastPassedSlug = '';
+    for (const slug of headingSlugs) {
+      const el = document.getElementById(slug);
+      if (el && el.offsetTop <= scrollY + 100) {
+        lastPassedSlug = slug;
+      }
+    }
+    if (lastPassedSlug) {
+      setActive(lastPassedSlug);
+    } else if (headingSlugs.length > 0) {
+      setActive(headingSlugs[0]);
+    }
+  });
+})();
+</script>

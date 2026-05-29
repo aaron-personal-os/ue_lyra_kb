@@ -1,0 +1,29 @@
+name: "UE 摄像机（Camera）系统从入门到实战"
+slug: camera-system
+description: "系统学习 UE5 摄像机系统核心概念、引擎层实现与 Lyra 项目中的实战应用"
+difficulty_range: [beginner, advanced]
+ue_version: "5.7"
+total_lessons: 11
+estimated_hours: 10
+prerequisites:
+  - series: ue-framework
+    minimum: 01-game-loop
+  - concept: 基本 C++ 语法（类、继承、组件）
+  - concept: AActor / UActorComponent 基础
+learning_path:
+  - stage: 系列概览
+    description: 理解摄像机系统的整体框架与学习路径
+    lessons: [00-UE摄像机-Camera系统从入门到实战]
+  - stage: 引擎核心类
+    description: 掌握 ACameraActor、UCameraComponent、APlayerCameraManager、USpringArmComponent 等核心类
+    lessons: [01-ACameraActor与UCameraComponent基础, 02-APlayerCameraManager详解, 03-USpringArmComponent深度解析]
+  - stage: 视图与效果
+    description: 摄像机视图计算、投影矩阵、震动与修改器
+    lessons: [04-摄像机视图计算与投影, 05-CameraShake与CameraModifier]
+  - stage: Lyra 摄像机系统
+    description: 深入 Lyra 自定义摄像机组件与模式系统
+    lessons: [06-LyraCameraComponent深度解析, 07-Lyra摄像机模式系统, 08-Lyra摄像机与ExperiencePawnData集成]
+  - stage: 高级主题与实战
+    description: 常见陷阱与完整案例分析
+    lessons: [09-高级主题与常见陷阱, 10-Lyra摄像机系统完整案例分析]
+tags: [camera, camera-component, player-camera-manager, lyra, gameplay]

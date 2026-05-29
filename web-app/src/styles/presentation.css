@@ -1,0 +1,441 @@
+/* ========================================
+   Presentation Mode (reveal.js) Styles
+   ======================================== */
+
+/* Floating trigger button — pinned top-right to avoid overlapping the
+   bottom-right dev-only terminal launcher (ADR-0003). Sits below the
+   sticky Navbar (~4rem tall). */
+.present-btn {
+  position: fixed;
+  top: 5rem;
+  right: 1.25rem;
+  z-index: 45;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.95rem;
+  border-radius: 9999px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease,
+    border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.present-btn:hover {
+  transform: translateY(-1px);
+  background: var(--surface-2);
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+  box-shadow: 0 12px 28px -8px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.present-btn__label {
+  display: none;
+}
+@media (min-width: 768px) {
+  .present-btn__label {
+    display: inline;
+  }
+}
+
+/* Fullscreen overlay */
+.reveal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #0f1117;
+}
+
+/* Close button (top-right corner) */
+.reveal-close {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.reveal-close:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+/* reveal.js overrides for dark theme integration */
+.reveal-overlay .reveal {
+  height: 100%;
+  width: 100%;
+  font-size: 22px;
+  color: #e2e8f0;
+}
+
+.reveal-overlay .reveal .slides {
+  text-align: center;
+}
+
+.reveal-overlay .reveal .slides section {
+  font-family: 'Inter', 'Noto Sans SC', ui-sans-serif, system-ui, sans-serif;
+  padding: 2rem;
+}
+
+
+.reveal-overlay .reveal .slides h2 {
+  font-family: 'Inter', 'Noto Sans SC', ui-sans-serif, system-ui, sans-serif;
+  border: none;
+}
+
+.reveal-overlay .reveal .slides h3 {
+  font-family: 'Inter', 'Noto Sans SC', ui-sans-serif, system-ui, sans-serif;
+}
+
+.reveal-overlay .reveal .slides pre {
+  box-shadow: none;
+  width: 100%;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+.reveal-overlay .reveal .slides code {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+.reveal-overlay .reveal .slides table {
+  border-collapse: collapse;
+  width: 100%;
+  color: #cbd5e1;
+}
+.reveal-overlay .reveal .slides th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  background: #1a1d2e;
+  border-bottom: 1px solid #2e3348;
+  font-weight: 600;
+  font-size: 0.8em;
+  color: #e2e8f0;
+}
+.reveal-overlay .reveal .slides td {
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid #1e2230;
+  font-size: 0.75em;
+}
+
+/* Controls styling */
+.reveal-overlay .reveal .controls {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ========== Code window in slides ========== */
+.reveal-overlay .reveal .slides .slide-code-window {
+  border-radius: 12px;
+  overflow: hidden;
+  background: #0d1117;
+  border: 1px solid #21262d;
+  box-shadow: 0 16px 48px -12px rgba(0, 0, 0, 0.6);
+  text-align: left;
+  margin: 0.3em 0;
+  max-height: 540px;
+  display: flex;
+  flex-direction: column;
+}
+
+.reveal-overlay .reveal .slides .slide-code-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: #161b22;
+  border-bottom: 1px solid #21262d;
+  flex-shrink: 0;
+}
+
+.reveal-overlay .reveal .slides .slide-code-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.reveal-overlay .reveal .slides .slide-code-dots i {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.reveal-overlay .reveal .slides .slide-code-dots i:nth-child(1) { background: #ff5f57; }
+.reveal-overlay .reveal .slides .slide-code-dots i:nth-child(2) { background: #febc2e; }
+.reveal-overlay .reveal .slides .slide-code-dots i:nth-child(3) { background: #28c840; }
+
+.reveal-overlay .reveal .slides .slide-code-lang {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #7ee787;
+  background: rgba(126, 231, 135, 0.1);
+  border: 1px solid rgba(126, 231, 135, 0.25);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.reveal-overlay .reveal .slides .slide-code-info {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #484f58;
+}
+
+.reveal-overlay .reveal .slides .slide-code-body {
+  overflow: auto;
+  flex: 1;
+  max-height: 560px;
+  scrollbar-width: thin;
+  scrollbar-color: #30363d transparent;
+}
+.reveal-overlay .reveal .slides .slide-code-body::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.reveal-overlay .reveal .slides .slide-code-body::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 3px;
+}
+
+.reveal-overlay .reveal .slides .slide-code-body pre,
+.reveal-overlay .reveal .slides .slide-code-body pre code,
+.reveal-overlay .reveal .slides section .slide-code-body pre {
+  margin: 0 !important;
+  padding: 0.4rem 0 !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+  overflow: visible !important;
+  width: 100% !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  color: #c9d1d9 !important;
+  display: block;
+  letter-spacing: -0.01em;
+}
+
+.reveal-overlay .reveal .slides .slide-code-line,
+.reveal-overlay .reveal .slides section .slide-code-line {
+  display: block;
+  padding: 0 0.6em 0 0;
+  white-space: pre;
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  transition: background 0.15s ease;
+}
+.reveal-overlay .reveal .slides .slide-code-line:hover {
+  background: rgba(99, 110, 123, 0.1);
+}
+
+.reveal-overlay .reveal .slides .slide-code-num,
+.reveal-overlay .reveal .slides section .slide-code-num {
+  display: inline-block;
+  width: 2.2em;
+  padding-right: 0.5em;
+  text-align: right;
+  color: #484f58;
+  user-select: none;
+  border-right: 1px solid #21262d;
+  margin-right: 0.5em;
+  font-size: 11px !important;
+  line-height: inherit !important;
+}
+
+.reveal-overlay .reveal .slides .slide-code-truncated {
+  color: #484f58;
+}
+
+.reveal-overlay .reveal .progress {
+  height: 3px;
+  color: var(--accent, #60a5fa);
+}
+
+/* Fragment animation — fade up */
+.reveal-overlay .reveal .fragment {
+  transition: opacity 0.5s ease, transform 0.5s ease !important;
+}
+.reveal-overlay .reveal .fragment:not(.visible) {
+  opacity: 0 !important;
+  transform: translateY(16px) !important;
+}
+.reveal-overlay .reveal .fragment.visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* Slide-level entrance animation for current slide content */
+.reveal-overlay .reveal .slides section.present {
+  animation: slideIn 0.6s ease-out;
+}
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Mermaid diagrams inside slides */
+.reveal-overlay .reveal .slides .mermaid-figure,
+.reveal-overlay .reveal .slides .mermaid-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+}
+
+.reveal-overlay .reveal .slides .mermaid-card {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  max-width: 100%;
+  width: 100%;
+}
+
+.reveal-overlay .reveal .slides .mermaid-card::before {
+  display: none;
+}
+
+.reveal-overlay .reveal .slides .mermaid-header {
+  display: none;
+}
+
+.reveal-overlay .reveal .slides .mermaid-body {
+  padding: 0;
+  max-height: none;
+  overflow: visible;
+}
+
+.reveal-overlay .reveal .slides .mermaid-body svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Dedicated mermaid slide.
+   reveal.js sizes slides via the configured 1280x720 viewport; section
+   itself has `height: auto`, so a child with `height: 100%` would
+   collapse. We instead size the window directly using the slide viewport
+   height (with margin) so the body has real space for the SVG. */
+.reveal-overlay .reveal .slides section.mermaid-slide {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  width: 100%;
+  height: 100%;
+}
+
+/* Mermaid window container.
+   Use explicit dimensions tied to reveal's 1280x720 coordinate system so
+   the body actually has height (otherwise it collapses to 0 and the SVG
+   becomes invisible). */
+.reveal-overlay .reveal .slides .slide-mermaid-window {
+  border-radius: 12px;
+  overflow: hidden;
+  background: #0d1117;
+  border: 1px solid #21262d;
+  box-shadow: 0 16px 48px -12px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1200px;
+  height: 660px;
+  max-height: 660px;
+}
+
+.reveal-overlay .reveal .slides .slide-mermaid-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: #161b22;
+  border-bottom: 1px solid #21262d;
+  flex-shrink: 0;
+}
+
+.reveal-overlay .reveal .slides .slide-mermaid-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.reveal-overlay .reveal .slides .slide-mermaid-dots i {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.reveal-overlay .reveal .slides .slide-mermaid-dots i:nth-child(1) { background: #ff5f57; }
+.reveal-overlay .reveal .slides .slide-mermaid-dots i:nth-child(2) { background: #febc2e; }
+.reveal-overlay .reveal .slides .slide-mermaid-dots i:nth-child(3) { background: #28c840; }
+
+.reveal-overlay .reveal .slides .slide-mermaid-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #67e8f9;
+  background: rgba(34, 211, 238, 0.1);
+  border: 1px solid rgba(34, 211, 238, 0.25);
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.reveal-overlay .reveal .slides .slide-mermaid-hint {
+  margin-left: auto;
+  font-size: 11px;
+  color: #484f58;
+  font-style: italic;
+}
+
+.reveal-overlay .reveal .slides .slide-mermaid-body {
+  flex: 1;
+  overflow: hidden;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 0;
+}
+
+.reveal-overlay .reveal .slides .slide-mermaid-inner {
+  transform-origin: center center;
+  transition: transform 0.08s ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* SVG: fit within container initially */
+.reveal-overlay .reveal .slides .slide-mermaid-inner svg {
+  max-width: 100% !important;
+  max-height: 560px !important;
+  width: auto !important;
+  height: auto !important;
+  display: block;
+  /* Reset any inline transform that was carried over from the article view
+     (the article-side zoom/pan handler writes inline transforms). */
+  transform: none !important;
+}

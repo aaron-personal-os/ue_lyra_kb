@@ -1,0 +1,9 @@
+{
+  "engine_root": "/Users/Shared/Epic Games/UE_5.7/Engine",
+  "project_name": "LyraStarterGame",
+  "build_command": "/Users/Shared/Epic Games/UE_5.7/Engine/Build/BatchFiles/Mac/Build.sh LyraStarterGameEditor Mac Development -Project=\"/Users/aaronking/Downloads/ue_lyra_kb/LyraStarterGame.uproject\"",
+  "knowledge_base": "docs/ue-agent-knowledge/knowledge-base.md",
+  "modules_dir": "docs/ue-agent-knowledge/modules/",
+  "ue_python_script": ".cursor/skills/ue-py-run/scripts/ue_python.py",
+  "multicast_bind_address": "0.0.0.0"
+}

@@ -1,0 +1,23 @@
+name: "Mutable 可定制角色系统从入门到实战"
+description: "系统学习 UE5 Mutable 插件，掌握可定制角色（Customizable Character）的完整技术栈"
+difficulty_range: [beginner, advanced]
+ue_version: "5.7"
+total_lessons: 8
+estimated_hours: 8
+prerequisites:
+  - concept: UE C++ 基础（UObject、UActorComponent、USkeletalMeshComponent）
+  - concept: 骨骼网格体（Skeletal Mesh）与材质基础
+learning_path:
+  - stage: 概念与架构
+    description: "理解 Mutable 解决什么问题、核心类之间的关系"
+    lessons: [00-Mutable可定制角色系统系列概览, 01-Mutable是什么可定制角色系统的本质, 02-Mutable核心架构三个类的三角关系]
+  - stage: 核心类详解
+    description: "深入 UCustomizableObject、Instance、SkeletalComponent 的实现"
+    lessons: [03-CustomizableObject与Instance详解, 04-SkeletalComponent与运行时更新详解]
+  - stage: 编译、Baking 与优化
+    description: "编辑器编译、运行时 Baking、LOD 与性能优化"
+    lessons: [05-编译Baking与性能优化]
+  - stage: 高级主题
+    description: "多 Component 高级管理、纹理压缩、集成实战与常见陷阱"
+    lessons: [06-Mutable多Component高级管理与性能优化, 07-Mutable集成实战与常见陷阱, 08-Mutable高级主题与常见陷阱]
+tags: [mutable, customizable-object, character-customization, skeletal-mesh]

@@ -1,0 +1,116 @@
+/* src/styles/typography.css */
+.prose-tutorial {
+  max-width: none;
+
+  /* Hide ALL h1 inside the article — the hero already shows the title.
+     We use a broad selector here because remark plugins (e.g. SectionReveal)
+     may wrap the original first-child h1 inside a <section>, defeating the
+     `> h1:first-child` selector. */
+  h1 {
+    display: none;
+  }
+
+  /* Headings */
+  h1 { font-size: 1.875rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1rem; letter-spacing: -0.025em; }
+  h2 { font-size: 1.5rem; font-weight: 600; margin-top: 2.5rem; margin-bottom: 0.75rem; letter-spacing: -0.025em; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+  h3 { font-size: 1.25rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.5rem; }
+  h4 { font-size: 1.125rem; font-weight: 500; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+
+  /* Paragraphs */
+  p { margin: 1rem 0; line-height: 1.75; color: var(--text-secondary); }
+
+  /* Links */
+  a { color: var(--accent); text-decoration: underline; text-decoration-color: var(--accent-softer); }
+  a:hover { text-decoration-color: var(--accent); }
+
+  /* External wikilink (non-tutorial pages, only visible in the wiki) —
+     rendered as inert grey text with dotted underline + tooltip.
+     See web-app remark plugin: src/plugins/remark-wiki-links.ts */
+  .wiki-link-external {
+    color: var(--text-secondary);
+    opacity: 0.65;
+    text-decoration: underline dotted;
+    text-decoration-color: var(--wiki-ext-underline);
+    text-underline-offset: 2px;
+    cursor: not-allowed;
+    /* 视觉上提示这是"外部知识库引用" */
+    border-radius: 2px;
+    padding: 0 2px;
+    background: var(--wiki-ext-bg);
+  }
+  .wiki-link-external::before {
+    content: "📒 ";
+    font-size: 0.75em;
+    opacity: 0.7;
+  }
+  .wiki-link-external:hover {
+    opacity: 0.9;
+  }
+
+  /* Lists */
+  ul { margin: 1rem 0; padding-left: 1.5rem; list-style-type: disc; }
+  ol { margin: 1rem 0; padding-left: 1.5rem; list-style-type: decimal; }
+  li { color: var(--text-secondary); margin-bottom: 0.25rem; }
+
+  /* Code - inline */
+  :not(pre) > code {
+    background: var(--surface-2);
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+  }
+
+  /* Code - block */
+  pre {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    overflow-x: auto;
+  }
+
+  /* Blockquote */
+  blockquote {
+    margin: 1.5rem 0;
+    padding-left: 1rem;
+    border-left: 4px solid var(--accent-soft);
+    font-style: italic;
+    color: var(--text-secondary);
+  }
+
+  /* Table */
+  table { margin: 1.5rem 0; width: 100%; border-collapse: collapse; }
+  th { text-align: left; padding: 0.75rem; background: var(--surface-1); border-bottom: 1px solid var(--border); font-weight: 500; }
+  td { padding: 0.75rem; border-bottom: 1px solid var(--border); }
+
+  /* Images */
+  img { margin: 1.5rem 0; border-radius: 0.5rem; border: 1px solid var(--border); }
+
+  /* Horizontal rule */
+  hr { margin: 2rem 0; border-color: var(--border); }
+
+  /* Math formulas (KaTeX) */
+  .katex-display {
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.5rem 0;
+  }
+
+  .katex { color: var(--text-primary); }
+}
+
+/* KaTeX: hide MathML semantic layer globally
+   (Tailwind CSS 4 preflight can override KaTeX's default clip rules) */
+.katex-mathml {
+  position: absolute !important;
+  clip: rect(1px, 1px, 1px, 1px) !important;
+  padding: 0 !important;
+  border: 0 !important;
+  height: 1px !important;
+  width: 1px !important;
+  overflow: hidden !important;
+}

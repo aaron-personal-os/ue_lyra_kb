@@ -1,0 +1,21 @@
+name: UE 网络通信与同步系列
+slug: network-sync
+description: UE 网络通信架构、属性复制、RPC 和 Iris 系统详解
+difficulty: intermediate → advanced
+ue_version: "5.7"
+total_lessons: 15
+estimated_hours: 30
+prerequisites:
+  - series: ue-framework
+    minimum: 00-overview
+  - concept: 基本网络编程概念
+learning_path:
+  - stage: 基础
+    lessons: [00-UE网络通信总览, 01-连接建立与断开, 02-PacketBunchAck]
+  - stage: Legacy 复制
+    lessons: [03-LegacyActor复制流程, 04-Legacy属性复制与RPC流程, 05-RepLayoutFastArrayNetGUID, 06-ReplicationGraph与Lyra实践]
+  - stage: 对比与迁移
+    lessons: [07-LegacyReplicationvsIris]
+  - stage: Iris 系统
+    lessons: [iris/00-Iris总览, iris/01-IrisReplicationStateDescriptor, iris/02-IrisNetSerializer, iris/03-IrisNetToken, iris/04-Iris属性复制与RPC流程, iris/05-Iris迁移检查清单, iris/06-IrisObjectReplicationBridge与SubObject]
+tags: [网络, 复制, RPC, Iris, UE5.7]

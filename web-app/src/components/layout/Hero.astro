@@ -1,0 +1,213 @@
+---
+import Badge from '@/components/ui/Badge.astro';
+import { getSeriesTheme } from '@/lib/theme';
+
+interface Props {
+  title: string;
+  description?: string;
+  seriesSlug: string;
+  seriesName: string;
+  lessonIndex?: number;
+  totalLessons?: number;
+  difficulty?: string;
+  estimatedMinutes?: number;
+  lastSynced?: string;
+  progress?: number;
+  /** Anchor id of the element scrolled into when clicking "begin" indicator. */
+  scrollTargetId?: string;
+}
+
+const {
+  title,
+  description,
+  seriesSlug,
+  seriesName,
+  lessonIndex,
+  totalLessons,
+  difficulty,
+  estimatedMinutes,
+  lastSynced,
+  progress = 0,
+  scrollTargetId = 'lesson-content',
+} = Astro.props;
+
+const theme = getSeriesTheme(seriesSlug);
+
+const difficultyVariant = (() => {
+  if (!difficulty) return 'default' as const;
+  const d = difficulty.toLowerCase();
+  if (d === 'beginner' || d === '入门') return 'success' as const;
+  if (d === 'advanced' || d === '高级' || d === '进阶') return 'warning' as const;
+  return 'accent' as const;
+})();
+---
+
+<section
+  class="lesson-hero relative flex flex-col items-center justify-center overflow-hidden"
+  style={`--series-accent: ${theme.accent};`}
+>
+  <!-- Themed gradient backdrop -->
+  <div class={`absolute inset-0 bg-gradient-to-br ${theme.gradient} opacity-95`}></div>
+
+  <!-- Soft accent glow blobs -->
+  <div class="hero-blob hero-blob--a"></div>
+  <div class="hero-blob hero-blob--b"></div>
+  <div class="hero-blob hero-blob--c"></div>
+
+  <!-- Subtle grid overlay -->
+  <div class="absolute inset-0 hero-grid pointer-events-none"></div>
+
+  <!-- Bottom fade into page background -->
+  <div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-b from-transparent to-[var(--surface-0)]"></div>
+
+  <div class="relative z-10 max-w-4xl mx-auto px-6 text-center">
+    <!-- Badges row -->
+    <div class="flex flex-wrap items-center justify-center gap-2 mb-5">
+      <a
+        href={`/series/${seriesSlug}`}
+        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold uppercase tracking-wider backdrop-blur-sm hover:brightness-110 transition"
+        style="background: rgba(255,255,255,0.10); color: var(--series-accent); border: 1px solid color-mix(in srgb, var(--series-accent) 45%, transparent);"
+      >
+        <span class="inline-block w-1.5 h-1.5 rounded-full" style="background: var(--series-accent);"></span>
+        {seriesName}
+      </a>
+      {difficulty && (
+        <Badge variant={difficultyVariant} size="sm">
+          {difficulty}
+        </Badge>
+      )}
+    </div>
+
+    <!-- Title -->
+    <h1 class="text-2xl md:text-3xl font-bold text-white tracking-tight leading-[1.2] max-w-3xl mx-auto">
+      {title}
+    </h1>
+
+    <!-- Description -->
+    {description && (
+      <p class="mt-5 text-base md:text-lg text-white/75 max-w-2xl mx-auto leading-relaxed">
+        {description}
+      </p>
+    )}
+
+    <!-- Meta row -->
+    <div class="flex flex-wrap items-center justify-center gap-3 mt-7 text-sm">
+      {lessonIndex !== undefined && totalLessons !== undefined && (
+        <span class="hero-meta">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+          第 {lessonIndex} 课 / 共 {totalLessons} 课
+        </span>
+      )}
+      {estimatedMinutes !== undefined && (
+        <span class="hero-meta">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          ~{estimatedMinutes} min
+        </span>
+      )}
+      {lastSynced && (
+        <span class="hero-meta">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path></svg>
+          更新于 {lastSynced}
+        </span>
+      )}
+    </div>
+
+    <!-- Progress bar -->
+    {progress > 0 && (
+      <div class="mt-7 w-full max-w-md mx-auto">
+        <div class="flex items-center justify-between text-xs text-white/55 mb-1.5">
+          <span>系列进度</span>
+          <span>{progress}%</span>
+        </div>
+        <div class="h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
+          <div
+            class="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-300 transition-all duration-500"
+            style={`width: ${Math.min(100, Math.max(0, progress))}%`}
+          ></div>
+        </div>
+      </div>
+    )}
+
+    <!-- Breadcrumb: Series > Lesson -->
+    <div class="mt-6 flex items-center justify-center gap-2 text-xs text-white/45">
+      <a href={`/series/${seriesSlug}`} class="hover:text-white/70 transition-colors">
+        {seriesName}
+      </a>
+      <span>›</span>
+      <span class="text-white/65">{title.length > 30 ? title.slice(0, 30) + '…' : title}</span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .lesson-hero {
+    /* Navbar is fixed h-14 (3.5rem). Reserve that space at the top so
+       the centered content never gets clipped behind the navbar.
+       min-height is calculated *including* the navbar offset, and
+       max-height is loosened so taller content (long titles, all metas
+       and progress bar) can still breathe. */
+    padding-top: 3.5rem;
+    min-height: calc(45vh + 3.5rem);
+    max-height: none;
+    isolation: isolate;
+  }
+
+  /* On taller viewports keep the hero compact but never below content size */
+  @media (min-height: 800px) {
+    .lesson-hero {
+      min-height: calc(40vh + 3.5rem);
+    }
+  }
+
+  .hero-grid {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.7) 0%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.7) 0%, transparent 70%);
+  }
+
+  .hero-blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(80px);
+    opacity: 0.55;
+    pointer-events: none;
+  }
+  .hero-blob--a {
+    top: -20%;
+    left: 8%;
+    width: 20rem;
+    height: 20rem;
+    background: color-mix(in srgb, var(--series-accent) 35%, transparent);
+  }
+  .hero-blob--b {
+    bottom: -25%;
+    right: 5%;
+    width: 18rem;
+    height: 18rem;
+    background: color-mix(in srgb, var(--series-accent) 25%, transparent);
+  }
+  .hero-blob--c {
+    top: 20%;
+    right: 30%;
+    width: 10rem;
+    height: 10rem;
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .hero-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.78);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+</style>

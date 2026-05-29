@@ -1,0 +1,27 @@
+name: "UE 蓝图系统从入门到实战"
+slug: blueprint-system
+description: "系统学习 UE 蓝图系统的核心概念、VM 架构、编译机制、C++ 交互及在 Lyra 项目中的实际应用"
+difficulty: beginner → advanced
+ue_version: "5.7"
+total_lessons: 9
+estimated_hours: 8
+prerequisites:
+  - series: ue-framework
+    minimum: 00-UE蓝图系统从入门到实战
+  - series: ue-reflection
+    minimum: 00-UE蓝图系统从入门到实战
+  - concept: 基本 C++ 语法（类、继承、指针）
+learning_path:
+  - stage: 基础概念
+    description: 理解什么是蓝图、蓝图的类型、编辑器基本使用
+    lessons: [00-UE蓝图系统从入门到实战, 01-蓝图基础概念]
+  - stage: 核心机制
+    description: 掌握蓝图 VM、编译流程、UBlueprintGeneratedClass 运行时机制
+    lessons: [02-蓝图VM与字节码, 03-UBlueprintGeneratedClass深度解析]
+  - stage: C++ 交互
+    description: 蓝图与 C++ 的交互机制、性能优化、高级主题
+    lessons: [04-C++与蓝图交互, 05-蓝图继承与接口, 06-蓝图性能分析与优化, 07-高级主题与常见陷阱]
+  - stage: Lyra 实战
+    description: Lyra 项目中的蓝图使用策略、C++ 与蓝图的职责划分
+    lessons: [08-Lyra项目中的蓝图实践]
+tags: [blueprint, VM, kismet, UBlueprintGeneratedClass, Nativization, Lyra]

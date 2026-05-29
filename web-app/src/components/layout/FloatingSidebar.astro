@@ -1,0 +1,326 @@
+---
+interface Props {
+  side: 'left' | 'right';
+  label?: string;
+}
+
+const { side, label } = Astro.props;
+const isLeft = side === 'left';
+const sidebarId = `sidebar-${side}`;
+const storageKey = `sidebar-${side}-collapsed`;
+---
+
+<!-- Sidebar panel -->
+<aside
+  id={sidebarId}
+  class:list={[
+    'sidebar',
+    isLeft ? 'sidebar--left' : 'sidebar--right',
+  ]}
+  data-side={side}
+  data-storage-key={storageKey}
+>
+  <div class="sidebar__inner" data-sidebar-content>
+    {label && (
+      <div class="sidebar__label">
+        {label}
+      </div>
+    )}
+    <div class="sidebar__body">
+      <slot />
+    </div>
+  </div>
+</aside>
+
+<!-- Toggle handle: lives OUTSIDE the panel so it stays visible when collapsed -->
+<button
+  id={`${sidebarId}-toggle`}
+  class:list={[
+    'sidebar-toggle',
+    isLeft ? 'sidebar-toggle--left' : 'sidebar-toggle--right',
+  ]}
+  data-sidebar-toggle
+  type="button"
+  aria-label={`Toggle ${side} sidebar`}
+  aria-expanded="true"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2.2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    data-chevron
+  >
+    {isLeft ? (
+      <polyline points="15 18 9 12 15 6"></polyline>
+    ) : (
+      <polyline points="9 18 15 12 9 6"></polyline>
+    )}
+  </svg>
+</button>
+
+<!-- Hover hint rail (subtle accent line on edge when collapsed) -->
+<div
+  id={`${sidebarId}-rail`}
+  class:list={[
+    'sidebar-rail',
+    isLeft ? 'sidebar-rail--left' : 'sidebar-rail--right',
+  ]}
+  data-sidebar-rail
+></div>
+
+<style>
+  /* ---------- Panel ---------- */
+  .sidebar {
+    position: fixed;
+    top: 3.5rem; /* below navbar */
+    bottom: 0;
+    width: 18rem;
+    z-index: 40;
+    background: color-mix(in srgb, var(--surface-1) 95%, transparent);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    overflow: hidden;
+    transition: transform 0.22s ease-out;
+  }
+  .sidebar--left {
+    left: 0;
+    border-right: 1px solid var(--border);
+  }
+  .sidebar--right {
+    right: 0;
+    border-left: 1px solid var(--border);
+  }
+
+  .sidebar__inner {
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .sidebar__label {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 0.85rem 1rem;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    background: color-mix(in srgb, var(--surface-1) 92%, transparent);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar__body {
+    padding: 1rem;
+  }
+
+  /* ---------- Toggle handle ---------- */
+  .sidebar-toggle {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 50;
+    width: 22px;
+    height: 56px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-2);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition:
+      left 0.22s ease-out,
+      right 0.22s ease-out,
+      background 0.15s ease,
+      color 0.15s ease,
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+  .sidebar-toggle:hover {
+    background: var(--surface-1);
+    color: var(--text-primary);
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+  .sidebar-toggle [data-chevron] {
+    transition: transform 0.22s ease-out;
+  }
+
+  /* Position: when expanded, sit on the inside edge (overlapping panel border).
+     When collapsed (state set on <html>), slide to the very edge of the viewport. */
+  .sidebar-toggle--left {
+    left: 18rem;
+    transform: translate(-50%, -50%);
+    border-radius: 0 8px 8px 0;
+    border-left: none;
+  }
+  .sidebar-toggle--right {
+    right: 18rem;
+    transform: translate(50%, -50%);
+    border-radius: 8px 0 0 8px;
+    border-right: none;
+  }
+
+  :global(html[data-sidebar-left='collapsed']) .sidebar-toggle--left {
+    left: 0;
+    transform: translateY(-50%);
+    border-radius: 0 8px 8px 0;
+  }
+  :global(html[data-sidebar-right='collapsed']) .sidebar-toggle--right {
+    right: 0;
+    transform: translateY(-50%);
+    border-radius: 8px 0 0 8px;
+  }
+
+  /* ---------- Hover rail (thin accent line on viewport edge when collapsed) ---------- */
+  .sidebar-rail {
+    position: fixed;
+    top: 3.5rem;
+    bottom: 0;
+    width: 3px;
+    z-index: 30;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      color-mix(in srgb, var(--accent) 35%, transparent) 30%,
+      color-mix(in srgb, var(--accent) 35%, transparent) 70%,
+      transparent 100%
+    );
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .sidebar-rail--left { left: 0; }
+  .sidebar-rail--right { right: 0; }
+
+  :global(html[data-sidebar-left='collapsed']) .sidebar-rail--left {
+    pointer-events: auto;
+  }
+  :global(html[data-sidebar-right='collapsed']) .sidebar-rail--right {
+    pointer-events: auto;
+  }
+  :global(html[data-sidebar-left='collapsed']) .sidebar-rail--left:hover,
+  :global(html[data-sidebar-right='collapsed']) .sidebar-rail--right:hover {
+    opacity: 1;
+  }
+
+  /* ---------- Collapsed: slide panel out, flip chevron ---------- */
+  :global(html[data-sidebar-left='collapsed']) #sidebar-left {
+    transform: translateX(-100%);
+  }
+  :global(html[data-sidebar-right='collapsed']) #sidebar-right {
+    transform: translateX(100%);
+  }
+
+  :global(html[data-sidebar-left='collapsed']) .sidebar-toggle--left [data-chevron] {
+    transform: rotate(180deg);
+  }
+  :global(html[data-sidebar-right='collapsed']) .sidebar-toggle--right [data-chevron] {
+    transform: rotate(180deg);
+  }
+
+  /* ---------- Custom scrollbar inside panel ---------- */
+  .sidebar__inner::-webkit-scrollbar {
+    width: 8px;
+  }
+  .sidebar__inner::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .sidebar__inner::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--text-secondary) 30%, transparent);
+    border-radius: 4px;
+  }
+  .sidebar__inner::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--text-secondary) 55%, transparent);
+  }
+</style>
+
+<script is:inline define:vars={{ sidebarId, storageKey, side }}>
+(function() {
+  const sidebar = document.getElementById(sidebarId);
+  const toggle = document.getElementById(`${sidebarId}-toggle`);
+  const rail = document.getElementById(`${sidebarId}-rail`);
+  if (!sidebar || !toggle) return;
+
+  const isLeft = side === 'left';
+  const stateAttr = isLeft ? 'data-sidebar-left' : 'data-sidebar-right';
+
+  function setCollapsed(collapsed) {
+    if (collapsed) {
+      document.documentElement.setAttribute(stateAttr, 'collapsed');
+    } else {
+      document.documentElement.removeAttribute(stateAttr);
+    }
+    toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    localStorage.setItem(storageKey, collapsed ? 'true' : 'false');
+    window.dispatchEvent(new CustomEvent('sidebar-toggle', {
+      detail: { side, collapsed },
+    }));
+  }
+
+  function isCollapsed() {
+    return document.documentElement.getAttribute(stateAttr) === 'collapsed';
+  }
+
+  function init() {
+    const saved = localStorage.getItem(storageKey);
+    const shouldCollapse = saved === 'true' || (saved === null && window.innerWidth < 1024);
+    if (shouldCollapse) {
+      // Skip animation on initial load
+      sidebar.style.transition = 'none';
+      toggle.style.transition = 'none';
+      setCollapsed(true);
+      requestAnimationFrame(() => {
+        sidebar.style.transition = '';
+        toggle.style.transition = '';
+      });
+    } else {
+      setCollapsed(false);
+    }
+  }
+
+  toggle.addEventListener('click', () => {
+    setCollapsed(!isCollapsed());
+  });
+
+  if (rail) {
+    rail.addEventListener('click', () => setCollapsed(false));
+  }
+
+  // Keyboard: [ for left, ] for right
+  document.addEventListener('keydown', (e) => {
+    const t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+    if (isLeft && e.key === '[') {
+      e.preventDefault();
+      setCollapsed(!isCollapsed());
+    } else if (!isLeft && e.key === ']') {
+      e.preventDefault();
+      setCollapsed(!isCollapsed());
+    }
+  });
+
+  // Auto-collapse below 1024px
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (window.innerWidth < 1024 && !isCollapsed()) {
+        setCollapsed(true);
+      }
+    }, 150);
+  });
+
+  init();
+})();
+</script>

@@ -1,0 +1,133 @@
+---
+/**
+ * {{PageName}} — Astro Page
+ *
+ * Route: /{{route-path}}
+ * Layout: BaseLayout (generic) or TutorialLayout (tutorial content)
+ *
+ * For dynamic routes:
+ *   File: pages/{{section}}/[slug].astro → /{{section}}/:slug
+ *   File: pages/{{section}}/[...path].astro → /{{section}}/*
+ */
+
+// ─── Imports ──────────────────────────────────────────────────────────────────
+
+import BaseLayout from '@layouts/BaseLayout.astro';
+// import TutorialLayout from '@layouts/TutorialLayout.astro';
+import { getCollection } from 'astro:content';
+import { getAllSeries } from '@/lib/series';
+import { getSeriesTheme } from '@/lib/theme';
+
+// ─── Static Paths (for dynamic routes only) ──────────────────────────────────
+
+// Uncomment for dynamic routes:
+// export async function getStaticPaths() {
+//   const allSeries = await getAllSeries();
+//   return allSeries.map((s) => ({
+//     params: { slug: s.slug },
+//     props: { series: s },
+//   }));
+// }
+
+// ─── Data Fetching ────────────────────────────────────────────────────────────
+
+const allSeries = await getAllSeries();
+// const tutorials = await getCollection('tutorials');
+
+// ─── Computed ─────────────────────────────────────────────────────────────────
+
+const pageTitle = 'Page Title';
+const description = 'Page description for SEO';
+---
+
+<BaseLayout title={pageTitle}>
+  <!-- Hero / Header Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>{pageTitle}</h1>
+      <p>{description}</p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="page-main">
+    <div class="content-grid">
+      {allSeries.map((series) => (
+        <a href={`/series/${series.slug}`} class="card">
+          <h3>{series.name}</h3>
+          <p>{series.description}</p>
+        </a>
+      ))}
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .hero {
+    min-height: 40vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--surface-0), var(--surface-1));
+    padding: 4rem 2rem;
+  }
+
+  .hero-content {
+    text-align: center;
+    max-width: 60ch;
+  }
+
+  .hero h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+  }
+
+  .hero p {
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+  }
+
+  .page-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+  }
+
+  .content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    text-decoration: none;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .card h3 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .card p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+  }
+
+  @media (max-width: 1024px) {
+    .hero { min-height: 30vh; padding: 2rem 1rem; }
+    .hero h1 { font-size: 1.75rem; }
+    .page-main { padding: 2rem 1rem; }
+  }
+</style>

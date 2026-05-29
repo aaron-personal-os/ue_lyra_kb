@@ -1,0 +1,87 @@
+---
+/**
+ * {{ComponentName}} — Astro Component
+ *
+ * Purpose: {{description}}
+ * Location: src/components/{{layout|interactive|ui}}/{{ComponentName}}.astro
+ */
+
+// ─── Props ────────────────────────────────────────────────────────────────────
+
+interface Props {
+  /** Example prop */
+  title: string;
+  /** Optional variant */
+  variant?: 'default' | 'compact';
+  /** Optional CSS class override */
+  class?: string;
+}
+
+const { title, variant = 'default', class: className = '' } = Astro.props;
+
+// ─── Data ─────────────────────────────────────────────────────────────────────
+
+// Server-side data fetching (runs at build time)
+// import { getAllSeries } from '@/lib/series';
+// const series = await getAllSeries();
+---
+
+<!-- Template -->
+<div class:list={['component-name', variant, className]}>
+  <header class="component-header">
+    <h3>{title}</h3>
+  </header>
+
+  <div class="component-body">
+    <!-- Use <slot /> for child content -->
+    <slot />
+  </div>
+</div>
+
+<!-- Scoped Styles (automatically scoped to this component) -->
+<style>
+  .component-name {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+  }
+
+  .component-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .component-header h3 {
+    color: var(--text-primary);
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .compact {
+    padding: 0.75rem;
+  }
+
+  .compact .component-header {
+    margin-bottom: 0.5rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .component-name {
+      padding: 1rem;
+    }
+  }
+</style>
+
+<!-- Client-side enhancement (optional, remove if not needed) -->
+<script>
+  // This script runs once per page, enhancing all instances of this component.
+  // For complex interactivity, use a React Island instead.
+  document.querySelectorAll('.component-name').forEach((el) => {
+    // Example: add click handler, intersection observer, etc.
+  });
+</script>

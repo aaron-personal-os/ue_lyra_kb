@@ -1,0 +1,23 @@
+name: UE5 动画系统专题
+slug: animation
+description: UE5 动画系统架构、资源、状态机、IK、Motion Matching 和 Lyra 实现
+difficulty: intermediate → advanced
+ue_version: "5.x"
+total_lessons: 11
+estimated_hours: 20
+prerequisites:
+  - series: ue-framework
+    minimum: 00-overview
+  - concept: 骨骼动画基本概念
+learning_path:
+  - stage: 基础
+    lessons: [01-Lyra动画系统框架深度分析-概览, 02-UE5动画系统引擎基础框架深度分析, 03-UE5动画资源与蓝图系统深度分析]
+  - stage: 核心系统
+    lessons: [04-UE5动画图与状态机深度分析, 05-UE5IK解算与骨骼控制深度分析]
+  - stage: 实践与进阶
+    lessons: [06-Lyra动画系统实现详解, 07-UE5动画通知与特效系统深度分析, 08-UE5动画系统高级主题与性能优化, 09-MotionMatching运动匹配深度解析]
+  - stage: 程序化动画
+    lessons: [10-ControlRig深度解析, 11-程序化动画技术-Warping-PoseDriver-FullBodyIK]
+tags: [动画, 骨骼, IK, 状态机, Motion Matching, ControlRig, 程序化动画]
+
+

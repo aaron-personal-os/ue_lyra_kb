@@ -1,0 +1,84 @@
+{
+  // 在资源管理器中隐藏的文件和文件夹
+  "files.exclude": {
+    // UE5 生成目录
+    "**/Binaries": true,
+    "**/Intermediate": true,
+    "**/DerivedDataCache": true,
+    "**/Saved": true,
+    "**/Build": true,
+
+    // 插件生成目录
+    "**/Plugins/*/Binaries": true,
+    "**/Plugins/*/Intermediate": true,
+
+    // 平台特定目录（如不需要）
+    "**/Platforms": true,
+
+    // 内容目录
+    "**/Content": true,
+
+    // IDE 配置目录
+    "**/.idea": true,
+    "**/.vs": true,
+
+    // 日志文件
+    "**/*.log": true,
+
+    // 临时文件
+    "**/*.*~": true,
+    "**/.*.swp": true,
+    "**/.*.swo": true
+  },
+
+  // 搜索时排除的文件和文件夹
+  "search.exclude": {
+    // 与 files.exclude 相同的 UE5 生成目录
+    "**/Binaries": true,
+    "**/Intermediate": true,
+    "**/DerivedDataCache": true,
+    "**/Saved": true,
+    "**/Build": true,
+
+    // 插件生成目录
+    "**/Plugins/*/Binaries": true,
+    "**/Plugins/*/Intermediate": true,
+
+    // 平台特定目录
+    "**/Platforms": true,
+
+    // 内容目录中的资产文件（只搜索源码）
+    "**/Content": true,
+
+
+
+    // 二进制文件
+    "**/*.uasset": true,
+    "**/*.umap": true,
+    "**/*.dll": true,
+    "**/*.dylib": true,
+    "**/*.so": true,
+    "**/*.pdb": true
+  },
+
+  // C++ 扩展配置
+  "C_Cpp.default.browse.path": [
+    "${workspaceFolder}/Source",
+    "${workspaceFolder}/Plugins"
+  ],
+  "C_Cpp.default.systemIncludePath": [
+    "${workspaceFolder}/Source",
+    "${workspaceFolder}/Plugins"
+  ],
+
+  // 文件监视排除
+  "files.watcherExclude": {
+    "**/Binaries/**": true,
+    "**/Intermediate/**": true,
+    "**/DerivedDataCache/**": true,
+    "**/Saved/**": true,
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/*/**": true
+  }
+}

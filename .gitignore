@@ -1,0 +1,219 @@
+# ============================================================
+# LyraStarterGame .gitignore
+# 黑名单模式：显式指定忽略项，未列出的文件默认跟踪
+# ============================================================
+
+
+# ============================================================
+# 1. Unreal Engine 项目常用忽略
+# ============================================================
+
+# 二进制资产缓存
+Content/DerivedDataCache/
+Content/Intermediate/
+Saved/
+Binaries/
+Intermediate/
+Build/
+
+# Visual Studio / Rider 工程文件
+*.sln
+*.suo
+*.user
+*.sln.docstates
+.vs/
+*.VC.db
+*.VC.opendb
+
+# CLion
+cmake-build-*/
+
+# 插件临时目录（已通过第 4 节白名单模式管理，此处保留备注）
+# Plugins/*/Binaries/
+# Plugins/*/Intermediate/
+# Plugins/*/Saved/
+
+# Platforms 中间文件
+Platforms/*/Binaries/
+Platforms/*/Intermediate/
+Platforms/*/Saved/
+
+# 日志
+Saved/Logs/
+
+# 蓝图调试
+*.uasset.bak
+*.umap.bak
+
+# 本地配置文件
+DefaultEditor.ini
+DefaultEditorPerForce.ini
+DefaultEngine.ini.local
+DefaultGame.ini.local
+
+# macOS
+.DS_Store
+*.swp
+*~
+
+
+# ============================================================
+# 2. 前端项目常用忽略（含 web-app）
+# ============================================================
+
+# 依赖
+node_modules/
+.pnpm-home/
+.pnp/
+.pnp.js
+yarn.lock
+package-lock.json
+
+# 构建产物
+dist/
+build/
+.vite/
+.astro/
+.next/
+.nuxt/
+.svelte-kit/
+.vercel/
+
+# 缓存
+.cache/
+.parcel-cache/
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# TypeScript 编译缓存
+*.tsbuildinfo
+
+# ESLint / Prettier 缓存
+.eslintcache
+.prettierignore
+
+
+# ============================================================
+# 3. Python 项目常用忽略
+# ============================================================
+
+# 字节码
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 虚拟环境
+venv/
+env/
+ENV/
+.venv/
+
+# 依赖锁定文件（开发环境专属）
+Pipfile.lock
+poetry.lock
+
+# 测试 / 覆盖率
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# Jupyter
+.ipynb_checkpoints/
+
+# 打包 / 分发
+*.egg-info/
+dist/
+build/
+*.egg
+
+# IDE
+.idea/
+*.iml
+
+
+# ============================================================
+# 4. 项目根目录指定忽略
+# ============================================================
+
+# UE 核心目录（仅忽略根目录，不忽略子模块内的同名目录）
+/Content/
+/Config/
+/Platforms/
+/DerivedDataCache/
+
+# ============================================================
+# Plugins 目录：只提交各插件的 Source/ 子目录（源码）
+# ============================================================
+
+# 先忽略 Plugins 下所有内容
+/Plugins/**
+
+# 放行目录结构（保证 git 能递归进入）
+!/Plugins/
+!/Plugins/*/
+!/Plugins/**/
+
+# 放行每个插件的 Source 目录及其所有子文件
+!/Plugins/*/Source/
+!/Plugins/*/Source/**
+!/Plugins/**/Source/
+!/Plugins/**/Source/**
+
+# 放行插件描述文件（可选，便于识别插件）
+!/Plugins/*/*.uplugin
+!/Plugins/**/*.uplugin
+
+# 排除 Developer 子目录（不提交）
+/Plugins/Developer/
+
+
+
+# AI 工具目录
+/.codex/
+/.cursor/
+/.superpowers/
+
+# 根目录忽略文件
+AGENTS.md
+CLAUDE.md
+
+
+# ============================================================
+# 5. .claude 目录：只提交 settings.json
+# ============================================================
+
+# 先忽略 .claude 下所有文件
+.claude/*
+
+# 再放行 settings.json
+!.claude/settings.json
+
+
+# ============================================================
+# 6. 其他工具 / 临时文件
+# ============================================================
+
+# 操作系统
+Thumbs.db
+Desktop.ini
+
+# 临时文件
+*.tmp
+*.log
+*.bak
+
+# Obsidian 工作区（不提交个人窗口布局）
+Docs/.obsidian/workspace.json
+.obsidian/workspace.json
+/.vsconfig
+
+/web-app/release/*.zip
+
+# Dev-only embedded terminal token (ADR-0003) — never commit
+/web-app/.terminal-token
+/Docs/.obsidian/graph.json
+/.obsidian/graph.json

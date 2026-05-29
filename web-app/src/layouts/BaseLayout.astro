@@ -1,0 +1,70 @@
+---
+// src/layouts/BaseLayout.astro
+import '../styles/global.css';
+import 'katex/dist/katex.min.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = 'Lyra Knowledge Base — Interactive UE5 Tutorials' } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content={description} />
+  <title>{title} | UE&Lyra KB</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=Noto+Sans+SC:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <!-- Pre-paint state to avoid layout flash on reload (theme + sidebar) -->
+  <script is:inline>
+    (function () {
+      try {
+        var html = document.documentElement;
+
+        // 1. Theme: localStorage > prefers-color-scheme > 'dark' (project default)
+        var stored = localStorage.getItem('lyra-kb-theme');
+        var theme;
+        if (stored === 'light' || stored === 'dark') {
+          theme = stored;
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+          theme = 'light';
+        } else {
+          theme = 'dark';
+        }
+        html.setAttribute('data-theme', theme);
+
+        // 2. Sidebar collapsed state
+        var l = localStorage.getItem('sidebar-left-collapsed');
+        var r = localStorage.getItem('sidebar-right-collapsed');
+        var small = window.innerWidth < 1024;
+        if (l === 'true' || (l === null && small)) html.setAttribute('data-sidebar-left', 'collapsed');
+        if (r === 'true' || (r === null && small)) html.setAttribute('data-sidebar-right', 'collapsed');
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body class="min-h-screen bg-surface-0 text-[--text-primary]">
+  <slot />
+
+  <!-- Scroll Reveal Observer -->
+  <script>
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    document.querySelectorAll('.scroll-reveal').forEach((el) => observer.observe(el));
+  </script>
+</body>
+</html>

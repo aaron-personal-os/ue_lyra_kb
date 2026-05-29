@@ -1,0 +1,32 @@
+name: "GameFeature 系统从入门到实战"
+slug: game-feature
+description: "系统学习 UE5 GameFeature 架构，从概念到 Lyra 实战，掌握模块化游戏开发"
+difficulty: beginner
+ue_version: "5.7"
+total_lessons: 5
+estimated_hours: 4
+prerequisites:
+  - series: ue-framework
+    minimum: 00-GameFeature系统从入门到实战
+  - concept: 插件系统基础
+  - concept: Modular GamePlay 基础
+learning_path:
+  - stage: 概念理解
+    description: "理解 GameFeature 是什么、为什么需要它"
+    lessons:
+      - 00-GameFeature系统从入门到实战
+      - 01-GameFeature是什么
+  - stage: 核心机制
+    description: "掌握 GameFeature 的核心组件与工作机制"
+    lessons:
+      - 02-核心机制详解
+      - 03-生命周期与加载流程
+  - stage: Lyra 实战
+    description: "结合 Lyra 项目学习实际应用"
+    lessons:
+      - 04-Lyra中的ExperienceSystem实践
+  - stage: 高级主题
+    description: "自定义扩展与最佳实践"
+    lessons:
+      - 05-GameFeature高级主题与最佳实践
+tags: [game-feature, modular, plugin, lyra, ue5]

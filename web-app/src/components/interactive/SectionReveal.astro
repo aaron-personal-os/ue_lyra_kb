@@ -1,0 +1,170 @@
+---
+// SectionReveal.astro - Adds section-based reveal animations to tutorial content
+---
+<script>
+  function initSectionReveal() {
+    const article = document.querySelector('.prose-tutorial');
+    if (!article) return;
+
+    // Avoid running twice (e.g. HMR or duplicate triggers)
+    if (article.getAttribute('data-section-reveal') === 'done') return;
+    article.setAttribute('data-section-reveal', 'done');
+
+    // Remove the first H1 inside the article — it duplicates the hero title.
+    // Walk into the first level of descendants so we still catch H1s that
+    // were nested into other wrappers by remark plugins.
+    const firstH1 = article.querySelector('h1');
+    if (firstH1) {
+      firstH1.remove();
+    }
+
+    // Collect direct children once (snapshot before mutation)
+    const originalChildren: Node[] = Array.from(article.childNodes);
+
+    // Group children into sections separated by direct-child h2 elements.
+    // Anything before the first h2 becomes the intro section.
+    const sections: HTMLElement[] = [];
+    let currentSection: HTMLElement | null = null;
+    let hasIntro = false;
+
+    const startNewSection = () => {
+      const section = document.createElement('section');
+      section.className = 'tutorial-section section-hidden';
+      sections.push(section);
+      return section;
+    };
+
+    for (const node of originalChildren) {
+      const isH2 =
+        node instanceof HTMLElement && node.tagName === 'H2';
+
+      if (isH2) {
+        currentSection = startNewSection();
+        currentSection.appendChild(node);
+      } else {
+        if (!currentSection) {
+          // Intro chunk before any h2
+          currentSection = startNewSection();
+          hasIntro = true;
+        }
+        currentSection.appendChild(node);
+      }
+    }
+
+    // Append all sections back into the article
+    sections.forEach((section) => article.appendChild(section));
+
+    // If IntersectionObserver isn't available, just show everything
+    if (typeof IntersectionObserver === 'undefined') {
+      sections.forEach((s) => {
+        s.classList.remove('section-hidden');
+        s.classList.add('section-visible');
+      });
+      return;
+    }
+
+    // Reveal first section immediately so the page never appears empty
+    if (sections.length > 0) {
+      const first = sections[0];
+      first.classList.remove('section-hidden');
+      first.classList.add('section-visible');
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.remove('section-hidden');
+            entry.target.classList.add('section-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.05, rootMargin: '0px 0px -50px 0px' }
+    );
+
+    sections.slice(1).forEach((section) => observer.observe(section));
+
+    // Safety net: after 1.5s, force-reveal any sections still hidden.
+    // Protects against edge cases where the observer never fires
+    // (e.g. content shorter than viewport, sticky layouts, etc.)
+    setTimeout(() => {
+      sections.forEach((s) => {
+        if (s.classList.contains('section-hidden')) {
+          s.classList.remove('section-hidden');
+          s.classList.add('section-visible');
+          observer.unobserve(s);
+        }
+      });
+    }, 1500);
+
+    // Suppress unused-var warning
+    void hasIntro;
+  }
+
+  // Run after DOM is ready
+  document.addEventListener('DOMContentLoaded', initSectionReveal);
+  if (document.readyState !== 'loading') {
+    initSectionReveal();
+  }
+</script>
+
+<style is:global>
+  .tutorial-section {
+    will-change: opacity, transform;
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  }
+
+  .section-hidden {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  .section-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Add a subtle separator between sections */
+  .tutorial-section + .tutorial-section {
+    padding-top: 1rem;
+  }
+
+  /* Add a decorative accent to h2 in sections */
+  .tutorial-section > h2:first-child {
+    position: relative;
+    padding-left: 1rem;
+  }
+
+  .tutorial-section > h2:first-child::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.2em;
+    bottom: 0.2em;
+    width: 3px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* Fallback: if JS fails entirely, content must remain visible.
+     We rely on the @media(prefers-reduced-motion) and a no-script fallback. */
+  @media (prefers-reduced-motion: reduce) {
+    .tutorial-section,
+    .section-hidden {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
+  }
+</style>
+
+<noscript>
+  <style>
+    .tutorial-section,
+    .section-hidden {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  </style>
+</noscript>

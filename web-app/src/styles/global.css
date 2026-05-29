@@ -1,0 +1,113 @@
+@import "tailwindcss";
+@import './typography.css';
+@import './presentation.css';
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: 'Inter', 'Noto Sans SC', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --color-surface-0: var(--surface-0);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-accent: var(--accent);
+}
+
+/* ==========================================================================
+   Theme tokens (light & dark)
+   --------------------------------------------------------------------------
+   `:root` defaults to dark (matches existing visual identity for first paint
+   when localStorage is empty). `[data-theme="light"]` overrides for light
+   mode. The pre-paint inline script in BaseLayout sets the attribute before
+   the first frame to avoid FOUC.
+   ========================================================================== */
+:root {
+  /* Dark (default) */
+  --surface-0: #0f1117;
+  --surface-1: #1a1d2e;
+  --surface-2: #252939;
+  --accent: #60a5fa;
+  --accent-soft: rgba(99, 102, 241, 0.4);
+  --accent-softer: rgba(99, 102, 241, 0.3);
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border: #2e3348;
+  --border-strong: #3a4060;
+  /* Subtle external-wiki-link tint */
+  --wiki-ext-bg: rgba(148, 163, 184, 0.06);
+  --wiki-ext-underline: rgba(148, 163, 184, 0.5);
+
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --surface-0: #ffffff;
+  --surface-1: #f5f7fa;
+  --surface-2: #e6ebf2;
+  --accent: #2563eb;
+  --accent-soft: rgba(37, 99, 235, 0.35);
+  --accent-softer: rgba(37, 99, 235, 0.22);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border: #d6dde6;
+  --border-strong: #b6c0cd;
+  --wiki-ext-bg: rgba(71, 85, 105, 0.08);
+  --wiki-ext-underline: rgba(71, 85, 105, 0.45);
+
+  color-scheme: light;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--surface-0);
+  color: var(--text-primary);
+  line-height: 1.75;
+  /* Smooth theme transition (only for color-related properties) */
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* CJK line-height optimization */
+:lang(zh),
+:lang(ja),
+:lang(ko) {
+  line-height: 1.875;
+}
+
+/* Scroll reveal animation (scoped to NOT affect reveal.js container) */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.scroll-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   Shiki dual-theme switching
+   --------------------------------------------------------------------------
+   With `defaultColor: false`, Shiki emits CSS variables (--shiki-dark,
+   --shiki-light, etc.) on every token and inline style picks the active one
+   via the rules below. See astro.config.mjs `shikiConfig.themes`.
+   ========================================================================== */
+:root[data-theme="dark"] .astro-code,
+:root[data-theme="dark"] .astro-code span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+  font-style: var(--shiki-dark-font-style) !important;
+  font-weight: var(--shiki-dark-font-weight) !important;
+  text-decoration: var(--shiki-dark-text-decoration) !important;
+}
+
+:root[data-theme="light"] .astro-code,
+:root[data-theme="light"] .astro-code span {
+  color: var(--shiki-light) !important;
+  background-color: var(--shiki-light-bg) !important;
+  font-style: var(--shiki-light-font-style) !important;
+  font-weight: var(--shiki-light-font-weight) !important;
+  text-decoration: var(--shiki-light-text-decoration) !important;
+}

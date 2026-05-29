@@ -1,0 +1,253 @@
+/* ------------------------------------------------------------------
+ * Embedded VSCode-style terminal panel (dev-only)
+ * Stripped from production via `import.meta.env.DEV` guard at the
+ * mount site, so this file only ships to the dev server.
+ * ------------------------------------------------------------------ */
+
+.lyra-terminal-root {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  background: #0d1117;
+  color: #d1d5db;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow: 0 -8px 24px -12px rgba(0, 0, 0, 0.6);
+  font-family:
+    'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* Default height (overridden by JS-restored value via inline style) */
+  height: 30vh;
+  min-height: 120px;
+  max-height: 80vh;
+  /* Hidden by default until the user toggles the panel */
+  transform: translateY(100%);
+  transition: transform 0.18s ease-out;
+  /* Contain scroll: when the terminal handles a wheel event, the leftover
+     delta must NOT bubble to the document and scroll the article behind. */
+  overscroll-behavior: contain;
+}
+
+.lyra-terminal-root[data-visible='true'] {
+  transform: translateY(0);
+}
+
+/* Drag handle along the top edge */
+.lyra-terminal-resize-handle {
+  position: absolute;
+  top: -3px;
+  left: 0;
+  right: 0;
+  height: 6px;
+  cursor: ns-resize;
+  background: transparent;
+}
+.lyra-terminal-resize-handle:hover {
+  background: rgba(56, 189, 248, 0.25);
+}
+
+/* Header bar with tabs and controls */
+.lyra-terminal-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  padding: 0 8px;
+  height: 34px;
+  background: #11161d;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+  user-select: none;
+}
+
+.lyra-terminal-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+}
+.lyra-terminal-tabs::-webkit-scrollbar { height: 0; }
+
+.lyra-terminal-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  font-size: 12px;
+  color: #94a3b8;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.12s, background 0.12s, border-color 0.12s;
+}
+.lyra-terminal-tab:hover { color: #e2e8f0; background: rgba(148, 163, 184, 0.08); }
+.lyra-terminal-tab[data-active='true'] {
+  color: #e2e8f0;
+  background: #0d1117;
+  border-bottom-color: #38bdf8;
+}
+.lyra-terminal-tab .tab-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  color: inherit;
+  opacity: 0.6;
+}
+.lyra-terminal-tab .tab-close:hover {
+  opacity: 1;
+  background: rgba(248, 113, 113, 0.18);
+  color: #fca5a5;
+}
+
+.lyra-terminal-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lyra-terminal-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.lyra-terminal-actions button:hover {
+  background: rgba(148, 163, 184, 0.12);
+  color: #e2e8f0;
+}
+.lyra-terminal-actions button[data-variant='close']:hover {
+  background: rgba(248, 113, 113, 0.18);
+  color: #fca5a5;
+}
+
+/* Lesson context strip */
+.lyra-terminal-context {
+  flex: 0 0 auto;
+  font-size: 11px;
+  color: #64748b;
+  background: #0d1117;
+  padding: 4px 12px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.06);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lyra-terminal-context strong {
+  color: #94a3b8;
+  font-weight: 500;
+}
+.lyra-terminal-context .ctx-action {
+  margin-left: auto;
+  color: #38bdf8;
+  background: transparent;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 4px;
+  padding: 1px 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
+.lyra-terminal-context .ctx-action:hover {
+  background: rgba(56, 189, 248, 0.12);
+}
+
+/* xterm host */
+.lyra-terminal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+  background: #0d1117;
+  /* Padding lives on the body, not on the xterm host, so FitAddon's row
+     calculation matches the actual visible area exactly (otherwise the last
+     row gets cropped). */
+  padding: 6px 8px;
+  /* No outer scrollbar — xterm has its own. Combined with overscroll-behavior
+     on .lyra-terminal-root, wheel events stay contained within the panel. */
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+.lyra-terminal-body .xterm-host {
+  position: absolute;
+  inset: 6px 8px;
+  padding: 0;
+}
+
+/* Trap wheel inside the xterm scrollback so the page never scrolls. */
+.lyra-terminal-body .xterm,
+.lyra-terminal-body .xterm-viewport,
+.lyra-terminal-body .xterm-screen {
+  overscroll-behavior: contain;
+}
+
+/* Connecting / error overlays */
+.lyra-terminal-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #94a3b8;
+  background: rgba(13, 17, 23, 0.95);
+  text-align: center;
+  padding: 16px;
+  line-height: 1.6;
+}
+.lyra-terminal-overlay code {
+  background: rgba(148, 163, 184, 0.12);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+/* Floating toggle button (always visible when panel is hidden) */
+.lyra-terminal-launcher {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 59;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #11161d;
+  color: #cbd5e1;
+  font-size: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  transition: transform 0.12s, color 0.12s, border-color 0.12s;
+}
+.lyra-terminal-launcher:hover {
+  color: #e2e8f0;
+  border-color: rgba(56, 189, 248, 0.5);
+  transform: translateY(-1px);
+}
+.lyra-terminal-launcher kbd {
+  font-family: inherit;
+  background: rgba(148, 163, 184, 0.12);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 10px;
+  color: #94a3b8;
+}
+.lyra-terminal-launcher[data-hidden='true'] { display: none; }

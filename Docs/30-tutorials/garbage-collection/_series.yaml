@@ -1,0 +1,48 @@
+# UE5 Garbage Collection 教程系列元数据
+
+id: garbage-collection
+title: "UE5 垃圾回收（Garbage Collection）从入门到实战"
+description: "系统学习 UE5 的垃圾回收机制，包括 UObject 内存管理、GC 算法、引用类型、性能优化，以及在 Lyra 项目中的实践应用。"
+difficulty_range: [beginner, advanced]
+ue_version: "5.7"
+total_lessons: 8
+estimated_hours: 10
+
+# 学习路径（分阶段）
+learning_path:
+  - stage: "基础概念"
+    description: "理解 UObject 内存模型和 GC 基本原理"
+    lessons:
+      - 00-GC垃圾回收系列概览
+      - 01-UObject基础与内存模型
+  
+  - stage: "核心机制"
+    description: "深入 GC 算法、引用类型和生命周期管理"
+    lessons:
+      - 02-GC算法详解
+      - 03-引用类型系统
+      - 04-UObject生命周期与GC交互
+  
+  - stage: "实战优化"
+    description: "掌握 GC 触发时机、性能优化策略和调试方法"
+    lessons:
+      - 05-GC触发时机与收集流程
+      - 06-GC性能优化策略
+  
+  - stage: "Lyra 实战"
+    description: "学习 Lyra 项目中的 GC 最佳实践"
+    lessons:
+      - 07-Lyra项目中的GC实践
+
+# 前置知识要求
+prerequisites:
+  - series: ue-framework
+    minimum: 00-GC垃圾回收系列概览
+    description: "建议先学习 UE 框架基础系列，至少读完 Actor 和 UObject 部分"
+  - concept: C++ 基础
+    description: "需要了解 C++ 指针、引用、智能指针等基本概念"
+  - concept: 内存管理基础
+    description: "建议了解堆/栈、内存分配、野指针等基础概念"
+
+# 系列标签
+tags: [gc, garbage-collection, uobject, memory, performance, optimization]

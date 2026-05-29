@@ -1,0 +1,53 @@
+---
+import { getCollection, render } from 'astro:content';
+import TutorialLayout from '@/layouts/TutorialLayout.astro';
+import { getAllSeries } from '@/lib/series';
+
+export async function getStaticPaths() {
+  const tutorials = await getCollection('tutorials');
+  const allSeries = getAllSeries();
+  const seriesSlugs = new Set(allSeries.map(s => s.slug));
+
+  return tutorials
+    .filter((tutorial) => {
+      // Only include tutorials whose first path segment matches a known series
+      const firstSegment = tutorial.id.split('/')[0];
+      return seriesSlugs.has(firstSegment);
+    })
+    .map((tutorial) => {
+      const parts = tutorial.id.split('/');
+      const seriesSlug = parts[0];
+      const lesson = parts.slice(1).join('/');
+
+      return {
+        params: { slug: seriesSlug, lesson },
+        props: { tutorial },
+      };
+    });
+}
+
+const { tutorial } = Astro.props;
+const { slug, lesson } = Astro.params;
+
+const { Content, headings } = await render(tutorial);
+
+// Derive page title: frontmatter title > first h1 from content > cleaned filename
+const title = tutorial.data.title
+  || headings.find(h => h.depth === 1)?.text
+  || lesson!.replace(/-/g, ' ').replace(/^\d+\s*/, '');
+const description = tutorial.data.description || '';
+
+// Determine lessonId (the lesson filename portion as used in learning_path)
+const lessonId = lesson;
+---
+
+<TutorialLayout
+  title={title}
+  description={description}
+  seriesSlug={slug!}
+  lessonId={lessonId}
+  headings={headings}
+  frontmatter={tutorial.data}
+>
+  <Content />
+</TutorialLayout>

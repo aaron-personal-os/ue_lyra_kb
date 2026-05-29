@@ -1,0 +1,22 @@
+name: "UE 反射系统从入门到实战"
+slug: ue-reflection
+description: "系统学习 UE 反射系统的核心概念、UHT 机制、反射 API 及在 Lyra 项目中的实际应用"
+difficulty: beginner → intermediate
+ue_version: "5.7"
+total_lessons: 8
+estimated_hours: 6
+prerequisites:
+  - series: ue-framework
+    minimum: 00-UE反射系统从入门到实战
+  - concept: 基本 C++ 语法（类、继承、指针）
+learning_path:
+  - stage: 基础概念
+    description: 理解什么是反射、为什么 UE 需要自己的反射系统、UHT 如何工作
+    lessons: [00-UE反射系统从入门到实战, 01-反射是什么从C++到UHT]
+  - stage: 核心机制
+    description: 掌握 UCLASS / UPROPERTY / UFUNCTION 等宏的作用，以及如何使用反射 API
+    lessons: [02-核心宏详解, 03-反射API实战, 04-反射驱动的系统]
+  - stage: 实战应用
+    description: 反射在蓝图交互、Lyra 项目中的实际应用，以及高级主题与常见陷阱
+    lessons: [05-反射与蓝图交互, 06-高级主题与常见陷阱, 07-Lyra中的反射实践]
+tags: [reflection, UHT, UClass, UPROPERTY, UFUNCTION, serialization, blueprint]

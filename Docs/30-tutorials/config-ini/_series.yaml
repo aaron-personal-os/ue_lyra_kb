@@ -1,0 +1,25 @@
+id: config-ini
+title: "UE Config/INI 系统深度解析"
+description: "系统讲解 UE5 配置系统（Config/INI）的核心机制、引擎层源码实现与 Lyra 项目实战"
+difficulty_range: [beginner, advanced]
+ue_version: "5.7"
+total_lessons: 8
+estimated_hours: 6
+prerequisites:
+  - series: ue-framework
+    minimum: 00-UEConfigINI系统深度解析
+  - concept: "基本 C++ 知识，了解 UE 项目结构"
+learning_path:
+  - stage: 基础认知
+    description: "了解 INI 系统全景、文件类型与命名规范"
+    lessons: [00-UEConfigINI系统深度解析, 01-INI文件类型与命名规范]
+  - stage: 核心机制
+    description: "深入配置层级合并规则、INI 操作符、GConfig API"
+    lessons: [02-配置层级与合并规则深度解析, 03-INI文件操作符详解, 04-GConfigAPI实战]
+  - stage: 系统集成与实战
+    description: "UObject 配置集成、Lyra 项目实际配置解读"
+    lessons: [05-UObject与Config系统集成, 06-Lyra项目配置实例解读]
+  - stage: 高级主题
+    description: "命令行覆盖、Hotfix 动态层、平台差异化配置"
+    lessons: [07-ConfigINI高级主题]
+tags: [config, ini, gconfig, uobject, lyra]

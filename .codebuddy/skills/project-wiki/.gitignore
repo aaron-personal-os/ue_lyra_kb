@@ -1,0 +1,10 @@
+# 检索引擎产物缓存（System of Record 是 Docs/，wiki.db 可随时 rebuild 重建）
+# 注意：用 .cache/* 而不是 .cache/，否则下方 !anchors.json 豁免规则会失效
+# （git 会跳过被忽略目录的下钻查询）
+.cache/*
+*.db
+__pycache__/
+*.pyc
+
+# anchors.json 是 wiki_lint pre-commit hook 所需的跨机器同步产物，必须进 git
+!.cache/anchors.json

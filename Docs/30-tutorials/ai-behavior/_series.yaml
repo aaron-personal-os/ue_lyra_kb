@@ -1,0 +1,30 @@
+# Behavior Tree & StateTree 教程系列
+
+name: "Behavior Tree 与 StateTree：从传统行为树到 UE5 新状态树"
+slug: ai-behavior
+description: "系统学习 UE 传统 Behavior Tree 基础，深入 UE5 新 StateTree 核心机制，掌握 AI 决策系统的选型与迁移"
+difficulty_range: [beginner, advanced]
+ue_version: "5.7"
+total_lessons: 7
+estimated_hours: 12
+
+prerequisites:
+  - series: ue-framework
+    minimum: 01-game-loop
+  - concept: C++ 基础
+  - concept: AI 基本概念
+
+learning_path:
+  - stage: "基础篇：Behavior Tree"
+    description: "掌握传统行为树的核心概念和使用方法"
+    lessons: [00-BehaviorTree与StateTreeAI决策系统完全指南, 01-BehaviorTree基础节点类型与执行流程, 02-BehaviorTree高级DecoratorService与EQS]
+  
+  - stage: "进阶篇：StateTree"
+    description: "学习 UE5 新状态树的事件驱动架构"
+    lessons: [03-StateTree入门, 04-StateTree核心机制]
+  
+  - stage: "实战篇：对比与迁移"
+    description: "Lyra 实战案例分析，BT → ST 迁移指南"
+    lessons: [05-LyraAI实战Bot控制与BehaviorTree, 06-BehaviorTree到StateTree迁移指南]
+
+tags: [AI, BehaviorTree, StateTree, Decision, Lyra]

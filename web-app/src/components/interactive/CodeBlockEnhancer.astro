@@ -1,0 +1,409 @@
+---
+// CodeBlockEnhancer.astro
+// Wraps every <pre> code block in a macOS-style window:
+//   ┌──────────────────────────────────────────────┐
+//   │ ●●●  CPP  52 行                  [^] [复制]  │  <-- header
+//   ├──────────────────────────────────────────────┤
+//   │  source code with syntax highlight           │
+//   └──────────────────────────────────────────────┘
+//
+// Long blocks get a collapse/expand control with a fade-out gradient.
+---
+
+<script>
+  const MAX_LINES = 15;
+
+  // Friendly label for the code-block badge
+  function prettyLang(raw: string | null | undefined): string {
+    if (!raw) return 'CODE';
+    const s = raw.trim().toLowerCase();
+    const map: Record<string, string> = {
+      cpp: 'CPP',
+      'c++': 'CPP',
+      cxx: 'CPP',
+      c: 'C',
+      h: 'C/C++',
+      hpp: 'C++',
+      ts: 'TS',
+      typescript: 'TS',
+      tsx: 'TSX',
+      js: 'JS',
+      javascript: 'JS',
+      jsx: 'JSX',
+      py: 'PY',
+      python: 'PY',
+      rs: 'RUST',
+      rust: 'RUST',
+      go: 'GO',
+      golang: 'GO',
+      java: 'JAVA',
+      cs: 'C#',
+      csharp: 'C#',
+      sh: 'BASH',
+      bash: 'BASH',
+      zsh: 'ZSH',
+      ps: 'PS',
+      powershell: 'POWERSHELL',
+      yaml: 'YAML',
+      yml: 'YAML',
+      json: 'JSON',
+      toml: 'TOML',
+      ini: 'INI',
+      xml: 'XML',
+      html: 'HTML',
+      css: 'CSS',
+      scss: 'SCSS',
+      md: 'MD',
+      markdown: 'MD',
+      sql: 'SQL',
+      lua: 'LUA',
+      glsl: 'GLSL',
+      hlsl: 'HLSL',
+      diff: 'DIFF',
+      'plaintext': 'TEXT',
+      'text': 'TEXT',
+      txt: 'TEXT',
+      steps: 'STEPS',
+      quiz: 'QUIZ',
+    };
+    return map[s] || s.toUpperCase();
+  }
+
+  // Extract language from the <pre> or its <code> child.
+  // Astro sets data-language on <pre>, plus class="language-xxx" on <code>.
+  function detectLanguage(pre: HTMLElement, code: HTMLElement | null): string {
+    const dl = pre.getAttribute('data-language');
+    if (dl) return dl;
+    if (code) {
+      for (const cls of Array.from(code.classList)) {
+        if (cls.startsWith('language-')) return cls.slice('language-'.length);
+      }
+    }
+    return '';
+  }
+
+  // Count lines using Shiki's `.line` spans first, then fall back to text \n.
+  function countLines(pre: HTMLElement, code: HTMLElement | null): number {
+    const lineEls = pre.querySelectorAll('.line');
+    if (lineEls.length > 0) return lineEls.length;
+    const txt = (code?.textContent ?? pre.textContent ?? '').replace(/\n+$/, '');
+    if (!txt) return 0;
+    return txt.split('\n').length;
+  }
+
+  // Get raw text for clipboard
+  function getCodeText(pre: HTMLElement, code: HTMLElement | null): string {
+    const lineEls = pre.querySelectorAll('.line');
+    if (lineEls.length > 0) {
+      return Array.from(lineEls)
+        .map((l) => (l as HTMLElement).textContent || '')
+        .join('\n');
+    }
+    return (code?.textContent ?? pre.textContent ?? '').replace(/\n+$/, '');
+  }
+
+  function buildIcons() {
+    const dotsSvg = `
+      <svg width="56" height="14" viewBox="0 0 56 14" fill="none" aria-hidden="true">
+        <circle cx="7"  cy="7" r="6" fill="#ff5f57" stroke="#e0443e" stroke-width="0.5"/>
+        <circle cx="25" cy="7" r="6" fill="#febc2e" stroke="#dea123" stroke-width="0.5"/>
+        <circle cx="43" cy="7" r="6" fill="#28c840" stroke="#1aab29" stroke-width="0.5"/>
+      </svg>`;
+    return { dotsSvg };
+  }
+
+  function enhanceCodeBlocks() {
+    const preBlocks = document.querySelectorAll<HTMLElement>('.prose-tutorial pre');
+
+    preBlocks.forEach((pre) => {
+      // Skip if already enhanced or if it's a mermaid source pre (handled elsewhere)
+      if (pre.dataset.codeEnhanced === 'true') return;
+      if (pre.classList.contains('mermaid-source')) return;
+      if (pre.getAttribute('data-language') === 'mermaid') return;
+
+      const code = pre.querySelector('code');
+      if (code?.classList.contains('language-mermaid')) return;
+
+      pre.dataset.codeEnhanced = 'true';
+
+      const language = detectLanguage(pre, code);
+      const lines = countLines(pre, code);
+      const langLabel = prettyLang(language);
+      const { dotsSvg } = buildIcons();
+      const longBlock = lines > MAX_LINES;
+
+      // Build window wrapper
+      const wrapper = document.createElement('div');
+      wrapper.className = 'code-window';
+      wrapper.dataset.collapsed = longBlock ? 'true' : 'false';
+
+      const header = document.createElement('div');
+      header.className = 'code-window__header';
+      header.innerHTML = `
+        <div class="code-window__left">
+          <span class="code-window__dots">${dotsSvg}</span>
+          <span class="code-window__lang">${langLabel}</span>
+          <span class="code-window__lines">${lines} 行</span>
+        </div>
+        <div class="code-window__right">
+          ${
+            longBlock
+              ? `<button class="code-window__btn code-window__toggle" type="button" title="展开/收起" aria-label="展开/收起">
+                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 15 12 9 18 15"></polyline></svg>
+                 </button>`
+              : ''
+          }
+          <button class="code-window__btn code-window__copy" type="button" title="复制代码" aria-label="复制代码">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <span class="code-window__copy-label">复制</span>
+          </button>
+        </div>
+      `;
+
+      // Insert wrapper into DOM
+      pre.parentNode?.insertBefore(wrapper, pre);
+      wrapper.appendChild(header);
+
+      // Body wraps the original <pre>
+      const body = document.createElement('div');
+      body.className = 'code-window__body';
+      wrapper.appendChild(body);
+      body.appendChild(pre);
+
+      // Collapse setup for long blocks
+      if (longBlock) {
+        const fade = document.createElement('div');
+        fade.className = 'code-window__fade';
+        fade.innerHTML = `<button type="button" class="code-window__expand">展开全部 ${lines} 行 ↓</button>`;
+        body.appendChild(fade);
+
+        const setCollapsed = (collapsed: boolean) => {
+          wrapper.dataset.collapsed = collapsed ? 'true' : 'false';
+          const toggleBtn = header.querySelector<HTMLElement>('.code-window__toggle svg');
+          if (toggleBtn) {
+            toggleBtn.style.transform = collapsed ? 'rotate(180deg)' : 'rotate(0deg)';
+          }
+        };
+
+        const expandBtn = fade.querySelector('.code-window__expand');
+        expandBtn?.addEventListener('click', () => setCollapsed(false));
+
+        const headerToggle = header.querySelector('.code-window__toggle');
+        headerToggle?.addEventListener('click', () => {
+          const isCollapsed = wrapper.dataset.collapsed === 'true';
+          setCollapsed(!isCollapsed);
+        });
+
+        // initial
+        setCollapsed(true);
+      }
+
+      // Copy button
+      const copyBtn = header.querySelector<HTMLButtonElement>('.code-window__copy');
+      const copyLabel = header.querySelector<HTMLElement>('.code-window__copy-label');
+      copyBtn?.addEventListener('click', async () => {
+        const text = getCodeText(pre, code);
+        try {
+          await navigator.clipboard.writeText(text);
+          copyBtn.classList.add('is-copied');
+          if (copyLabel) copyLabel.textContent = '已复制';
+          setTimeout(() => {
+            copyBtn.classList.remove('is-copied');
+            if (copyLabel) copyLabel.textContent = '复制';
+          }, 1600);
+        } catch {
+          // Fallback
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          try {
+            document.execCommand('copy');
+            if (copyLabel) copyLabel.textContent = '已复制';
+            setTimeout(() => {
+              if (copyLabel) copyLabel.textContent = '复制';
+            }, 1600);
+          } catch {
+            /* noop */
+          }
+          ta.remove();
+        }
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', enhanceCodeBlocks);
+  if (document.readyState !== 'loading') {
+    enhanceCodeBlocks();
+  }
+</script>
+
+<style is:global>
+  /* -----------------------------------------------------------
+     macOS-style code window
+     ----------------------------------------------------------- */
+  .code-window {
+    --cw-radius: 12px;
+    --cw-header-bg: #2a2f3e;
+    --cw-header-border: rgba(255, 255, 255, 0.06);
+    --cw-body-bg: #14171f;
+    --cw-text-dim: rgba(226, 232, 240, 0.55);
+    --cw-text-strong: rgba(226, 232, 240, 0.92);
+    --cw-accent: #60a5fa;
+
+    margin: 1.75rem 0;
+    border-radius: var(--cw-radius);
+    background: var(--cw-header-bg);
+    box-shadow:
+      0 1px 0 0 rgba(255, 255, 255, 0.04) inset,
+      0 12px 28px -16px rgba(0, 0, 0, 0.65),
+      0 0 0 1px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+  }
+
+  .code-window__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.55rem 0.85rem;
+    background: var(--cw-header-bg);
+    border-bottom: 1px solid var(--cw-header-border);
+    user-select: none;
+  }
+
+  .code-window__left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+  }
+
+  .code-window__dots {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .code-window__lang {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #93c5fd;
+    background: rgba(96, 165, 250, 0.12);
+    border: 1px solid rgba(96, 165, 250, 0.25);
+    padding: 2px 7px;
+    border-radius: 4px;
+    line-height: 1.4;
+  }
+
+  .code-window__lines {
+    font-size: 11.5px;
+    color: var(--cw-text-dim);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  .code-window__right {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .code-window__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 4px 9px;
+    height: 26px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--cw-text-dim);
+    font-size: 11.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .code-window__btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--cw-text-strong);
+    border-color: rgba(255, 255, 255, 0.16);
+  }
+  .code-window__btn svg {
+    transition: transform 0.25s ease;
+  }
+  .code-window__copy.is-copied {
+    color: #4ade80;
+    border-color: rgba(74, 222, 128, 0.4);
+    background: rgba(74, 222, 128, 0.08);
+  }
+
+  /* Body holds the original <pre> */
+  .code-window__body {
+    position: relative;
+    background: var(--cw-body-bg);
+  }
+
+  /* Override the original .prose-tutorial pre styles INSIDE the window */
+  .code-window__body > pre,
+  .code-window__body pre.astro-code {
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    padding: 1rem 1.1rem !important;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+
+  /* Collapsed state: clip body height */
+  .code-window[data-collapsed='true'] .code-window__body > pre {
+    max-height: calc(15 * 1.65em + 2rem);
+    overflow: hidden;
+  }
+  .code-window[data-collapsed='false'] .code-window__body > pre {
+    max-height: none;
+    overflow: auto;
+  }
+
+  /* Bottom fade & expand button */
+  .code-window__fade {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 5.5rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 0.65rem;
+    background: linear-gradient(180deg, transparent 0%, var(--cw-body-bg) 70%);
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .code-window[data-collapsed='false'] .code-window__fade {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .code-window__expand {
+    pointer-events: auto;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(226, 232, 240, 0.9);
+    font-size: 11.5px;
+    font-weight: 500;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition: background 0.15s ease;
+  }
+  .code-window__expand:hover {
+    background: rgba(255, 255, 255, 0.14);
+  }
+</style>

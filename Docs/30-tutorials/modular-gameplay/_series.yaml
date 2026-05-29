@@ -1,0 +1,33 @@
+# Modular Gameplay 教程系列配置
+
+name: Modular Gameplay 系统
+slug: modular-gameplay
+description: UE5 模块化游戏架构，通过组件组合替代继承，实现功能解耦与动态组装
+difficulty: beginner → advanced
+ue_version: "5.7"
+total_lessons: 6  # 00-ModularGameplay系统教程系列 + 01~05 共 6 篇
+estimated_hours: 3.5
+prerequisites:
+  - series: ue-framework
+    minimum: 02-actor-and-component
+  - concept: Actor 组件系统、GameMode/GameState 基础
+learning_path:
+  - stage: 基础概念
+    description: 理解模块化游戏架构的设计理念和核心优势
+    lessons:
+      - 00-ModularGameplay系统教程系列
+      - 01-ModularGameplay是什么
+  - stage: 核心类详解
+    description: 掌握 ModularCharacter、ModularGameMode、ModularGameState 及其组件系统
+    lessons:
+      - 02-核心类详解
+      - 03-组件生命周期
+  - stage: Lyra 实战
+    description: 学习 Lyra 如何应用 Modular Gameplay 架构
+    lessons:
+      - 04-Lyra实战
+  - stage: 高级主题
+    description: 自定义组件、最佳实践、性能优化
+    lessons:
+      - 05-ModularGameplay高级主题与最佳实践
+tags: [modular-gameplay, component, architecture, lyra]

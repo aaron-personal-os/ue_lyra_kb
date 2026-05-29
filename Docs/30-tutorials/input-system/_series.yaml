@@ -1,0 +1,43 @@
+# UE5 输入系统教程系列元数据
+
+id: input-system
+title: "UE5 输入系统从入门到实战"
+description: "系统学习 UE5 Enhanced Input 系统，从 Input Action、Mapping Context 到 Trigger、Modifier，以及在 Lyra 项目中的实践应用。"
+difficulty_range: [beginner, advanced]
+ue_version: "5.7"
+total_lessons: 7
+estimated_hours: 9
+
+# 学习路径（分阶段）
+learning_path:
+  - stage: "基础概念"
+    description: "理解 Enhanced Input 架构、Input Action 与 Mapping Context"
+    lessons:
+      - 00-UE5输入系统系列概览
+      - 01-EnhancedInput系统概览
+      - 02-InputActions与MappingContext配置详解
+
+  - stage: "核心机制"
+    description: "掌握 Trigger、Modifier、输入处理完整调用链"
+    lessons:
+      - 03-Trigger与Modifier详解
+      - 04-输入处理流程从硬件到游戏逻辑
+
+  - stage: "实战与进阶"
+    description: "Lyra 输入实践、InputTag 与 GAS 联动、高级主题"
+    lessons:
+      - 05-Lyra实践InputTag与GAS联动详解
+      - 06-高级主题多设备输入注入与调试
+
+# 前置知识要求
+prerequisites:
+  - series: ue-framework
+    minimum: 00-UE5输入系统系列概览
+    description: "建议先学习 UE 框架基础系列，了解 PlayerController、Pawn、Component 的基本概念"
+  - concept: C++ 基础
+    description: "需要了解委托（Delegate）、Lambda、UObject 等基本概念"
+  - concept: 编辑器基础操作
+    description: "需要了解如何在编辑器中创建 Data Asset、配置属性"
+
+# 系列标签
+tags: [input, enhanced-input, input-action, mapping-context, trigger, modifier]

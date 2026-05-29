@@ -1,0 +1,843 @@
+---
+// MermaidInit.astro - Client-side Mermaid diagram renderer
+// Picks up <pre> blocks emitted by remark-mermaid (preferred) and also
+// any <pre data-language="mermaid"> emitted by Astro/Shiki as fallback.
+---
+
+<script>
+  import mermaid from 'mermaid';
+
+  // Theme variable presets — keyed by site theme.
+  const MERMAID_DARK_VARS = {
+    background: 'transparent',
+    mainBkg: '#1e2230',
+    secondBkg: '#262b3d',
+    tertiaryBkg: '#2d3346',
+
+    primaryColor: '#1e2230',
+    primaryTextColor: '#e2e8f0',
+    primaryBorderColor: '#22d3ee',
+
+    secondaryColor: '#262b3d',
+    secondaryTextColor: '#cbd5e1',
+    secondaryBorderColor: '#67e8f9',
+
+    tertiaryColor: '#2d3346',
+    tertiaryTextColor: '#94a3b8',
+    tertiaryBorderColor: '#0ea5b7',
+
+    lineColor: '#64748b',
+    textColor: '#e2e8f0',
+    labelBackgroundColor: '#1a1d2e',
+    classText: '#e2e8f0',
+
+    actorBkg: '#1e2230',
+    actorBorder: '#22d3ee',
+    actorTextColor: '#e2e8f0',
+    actorLineColor: '#475569',
+    signalColor: '#94a3b8',
+    signalTextColor: '#cbd5e1',
+    labelBoxBkgColor: '#262b3d',
+    labelBoxBorderColor: '#22d3ee',
+    labelTextColor: '#e2e8f0',
+    loopTextColor: '#cbd5e1',
+    activationBorderColor: '#22d3ee',
+    activationBkgColor: '#1e2230',
+    sequenceNumberColor: '#0f1117',
+
+    noteBkgColor: '#3f2a1d',
+    noteTextColor: '#fde68a',
+    noteBorderColor: '#f59e0b',
+
+    nodeBorder: '#22d3ee',
+    clusterBkg: '#171a26',
+    clusterBorder: '#334155',
+    defaultLinkColor: '#64748b',
+    titleColor: '#e2e8f0',
+    edgeLabelBackground: '#1a1d2e',
+
+    sectionBkgColor: '#1e2230',
+    altSectionBkgColor: '#262b3d',
+    gridColor: '#334155',
+    todayLineColor: '#f43f5e',
+  } as const;
+
+  const MERMAID_LIGHT_VARS = {
+    background: 'transparent',
+    mainBkg: '#ffffff',
+    secondBkg: '#f5f7fa',
+    tertiaryBkg: '#e6ebf2',
+
+    primaryColor: '#ffffff',
+    primaryTextColor: '#0f172a',
+    primaryBorderColor: '#0891b2',
+
+    secondaryColor: '#f5f7fa',
+    secondaryTextColor: '#1e293b',
+    secondaryBorderColor: '#0e7490',
+
+    tertiaryColor: '#e6ebf2',
+    tertiaryTextColor: '#475569',
+    tertiaryBorderColor: '#155e75',
+
+    lineColor: '#64748b',
+    textColor: '#0f172a',
+    labelBackgroundColor: '#ffffff',
+    classText: '#0f172a',
+
+    actorBkg: '#ffffff',
+    actorBorder: '#0891b2',
+    actorTextColor: '#0f172a',
+    actorLineColor: '#94a3b8',
+    signalColor: '#475569',
+    signalTextColor: '#1e293b',
+    labelBoxBkgColor: '#f5f7fa',
+    labelBoxBorderColor: '#0891b2',
+    labelTextColor: '#0f172a',
+    loopTextColor: '#1e293b',
+    activationBorderColor: '#0891b2',
+    activationBkgColor: '#ffffff',
+    sequenceNumberColor: '#ffffff',
+
+    noteBkgColor: '#fef3c7',
+    noteTextColor: '#78350f',
+    noteBorderColor: '#d97706',
+
+    nodeBorder: '#0891b2',
+    clusterBkg: '#f5f7fa',
+    clusterBorder: '#cbd5e1',
+    defaultLinkColor: '#64748b',
+    titleColor: '#0f172a',
+    edgeLabelBackground: '#ffffff',
+
+    sectionBkgColor: '#ffffff',
+    altSectionBkgColor: '#f5f7fa',
+    gridColor: '#cbd5e1',
+    todayLineColor: '#dc2626',
+  } as const;
+
+  function getCurrentTheme(): 'dark' | 'light' {
+    const t = document.documentElement.getAttribute('data-theme');
+    return t === 'light' ? 'light' : 'dark';
+  }
+
+  // Mermaid is a singleton; calling initialize again replaces config.
+  // We re-init whenever site theme changes.
+  function initMermaid(theme: 'dark' | 'light') {
+    mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: 'loose',
+      theme: 'base',
+      fontFamily: 'Inter, "Noto Sans SC", ui-sans-serif, system-ui, sans-serif',
+      themeVariables: theme === 'light' ? MERMAID_LIGHT_VARS : MERMAID_DARK_VARS,
+      flowchart: {
+        curve: 'basis',
+        padding: 16,
+        useMaxWidth: true,
+      },
+      sequence: {
+        useMaxWidth: true,
+        diagramMarginX: 32,
+        diagramMarginY: 16,
+        actorMargin: 80,
+        boxMargin: 12,
+        messageMargin: 32,
+        mirrorActors: true,
+      },
+      state: {
+        useMaxWidth: true,
+        padding: 16,
+      },
+      class: {
+        useMaxWidth: true,
+      },
+    });
+  }
+
+  let activeMermaidTheme: 'dark' | 'light' | null = null;
+  function ensureInit(theme: 'dark' | 'light') {
+    if (activeMermaidTheme === theme) return;
+    initMermaid(theme);
+    activeMermaidTheme = theme;
+  }
+
+  // Map mermaid diagram-type to short, human-friendly badge label
+  function detectDiagramType(src: string): string {
+    const head = src.trim().split('\n')[0]?.trim().toLowerCase() ?? '';
+    if (head.startsWith('statediagram')) return 'State';
+    if (head.startsWith('classdiagram')) return 'Class';
+    if (head.startsWith('sequencediagram')) return 'Sequence';
+    if (head.startsWith('erdiagram')) return 'ER';
+    if (head.startsWith('gantt')) return 'Gantt';
+    if (head.startsWith('pie')) return 'Pie';
+    if (head.startsWith('journey')) return 'Journey';
+    if (head.startsWith('timeline')) return 'Timeline';
+    if (head.startsWith('mindmap')) return 'Mindmap';
+    if (head.startsWith('gitgraph')) return 'Git';
+    if (head.startsWith('quadrantchart')) return 'Quadrant';
+    if (
+      head.startsWith('flowchart') ||
+      head.startsWith('graph')
+    ) {
+      return 'Flowchart';
+    }
+    return 'Diagram';
+  }
+
+  // Try to read a "title-like" line just before the <pre> as a caption.
+  // Examples: "**Mermaid 状态图**：" or a paragraph ending with "图：".
+  function findCaption(pre: HTMLElement): string {
+    const prev = pre.previousElementSibling as HTMLElement | null;
+    if (!prev) return '';
+    const tag = prev.tagName;
+    // Only accept very short explicit title-like elements
+    if (tag !== 'H4' && tag !== 'H5' && tag !== 'H6') return '';
+    const txt = (prev.textContent || '').trim();
+    if (!txt || txt.length > 30) return '';
+    return txt;
+  }
+
+  // Extract original mermaid source from a <pre> block.
+  function extractSource(pre: HTMLElement): string {
+    const code = pre.querySelector('code');
+    const lineEls = pre.querySelectorAll('.line');
+    if (lineEls.length > 0) {
+      const lines: string[] = [];
+      lineEls.forEach((line) => {
+        lines.push((line as HTMLElement).textContent || '');
+      });
+      return lines.join('\n');
+    }
+    return (code?.textContent ?? pre.textContent ?? '').replace(/\n+$/, '');
+  }
+
+  function findMermaidPres(): HTMLElement[] {
+    const set = new Set<HTMLElement>();
+    document
+      .querySelectorAll<HTMLElement>('pre.mermaid-source')
+      .forEach((el) => set.add(el));
+    document
+      .querySelectorAll<HTMLElement>('pre[data-language="mermaid"]')
+      .forEach((el) => set.add(el));
+    document
+      .querySelectorAll<HTMLElement>('pre > code.language-mermaid')
+      .forEach((codeEl) => {
+        const pre = codeEl.parentElement;
+        if (pre && pre.tagName === 'PRE') set.add(pre as HTMLElement);
+      });
+    return Array.from(set);
+  }
+
+  // Strip per-node hardcoded colors from mermaid source so every diagram
+  // follows the unified dark theme defined in `mermaid.initialize`.
+  // Removes:
+  //   - `style NodeId fill:#xxx,stroke:#xxx,...`
+  //   - `linkStyle 0,1 stroke:#xxx,...`
+  //   - color/fill/stroke segments in `classDef name color:#xxx,fill:#xxx`
+  //   - `:::className` shorthand classifiers (we still keep them harmless,
+  //     but their `classDef` colors will be empty so theme wins)
+  function sanitizeMermaid(src: string): string {
+    const lines = src.split('\n');
+    const out: string[] = [];
+    for (const raw of lines) {
+      const line = raw;
+      const trimmed = line.trim();
+
+      // Drop full `style ID fill:#xxx[,...]` directives entirely
+      if (/^style\s+\S+\s+(fill|stroke|color|stroke-width|stroke-dasharray)\s*:/i.test(trimmed)) {
+        continue;
+      }
+      // Drop full `linkStyle ...` directives entirely
+      if (/^linkStyle\s+/i.test(trimmed)) {
+        continue;
+      }
+
+      // Strip color-related properties from `classDef name k1:v1,k2:v2,...`
+      if (/^classDef\s+/i.test(trimmed)) {
+        const m = line.match(/^(\s*classDef\s+\S+)\s+(.+)$/i);
+        if (m) {
+          const props = m[2]
+            .split(',')
+            .map((p) => p.trim())
+            .filter((p) => {
+              const key = p.split(':')[0]?.trim().toLowerCase();
+              return (
+                key !== 'fill' &&
+                key !== 'stroke' &&
+                key !== 'color' &&
+                key !== 'stroke-width' &&
+                key !== 'stroke-dasharray' &&
+                key !== 'background' &&
+                key !== 'background-color'
+              );
+            });
+          // If everything was a color prop, drop the directive entirely
+          if (props.length === 0) {
+            continue;
+          }
+          out.push(`${m[1]} ${props.join(',')}`);
+          continue;
+        }
+      }
+
+      out.push(line);
+    }
+    return out.join('\n');
+  }
+
+
+  async function renderMermaidBlocks() {
+    const pres = findMermaidPres();
+    if (pres.length === 0) return;
+
+    const theme = getCurrentTheme();
+    ensureInit(theme);
+
+    for (let i = 0; i < pres.length; i++) {
+      const preEl = pres[i];
+      if (preEl.dataset.mermaidRendered === 'true') continue;
+      preEl.dataset.mermaidRendered = 'true';
+
+      const chartDefinition = sanitizeMermaid(extractSource(preEl)).trim();
+      if (!chartDefinition) continue;
+
+      const id = `mermaid-diagram-${Date.now()}-${i}`;
+      const diagramType = detectDiagramType(chartDefinition);
+      const caption = findCaption(preEl);
+
+      try {
+        const { svg, bindFunctions } = await mermaid.render(id, chartDefinition);
+
+        const figure = document.createElement('figure');
+        figure.className = 'mermaid-figure';
+        // Stash the source so a later theme swap can re-render in place.
+        figure.dataset.mermaidSource = chartDefinition;
+        figure.dataset.mermaidTheme = theme;
+        figure.innerHTML = `
+          <div class="mermaid-card">
+            <div class="mermaid-header">
+              <span class="mermaid-badge">${diagramType}</span>
+              ${caption ? `<span class="mermaid-caption">${caption}</span>` : ''}
+              <button class="mermaid-mode-toggle" data-mode="move" title="切换：拖拽模式 / 选择模式">
+                <svg class="mermaid-mode-icon icon-move" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"></polyline><polyline points="9 5 12 2 15 5"></polyline><polyline points="15 19 12 22 9 19"></polyline><polyline points="19 9 22 12 19 15"></polyline><line x1="2" y1="12" x2="22" y2="12"></line><line x1="12" y1="2" x2="12" y2="22"></line></svg>
+                <svg class="mermaid-mode-icon icon-select" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3a2 2 0 0 0-2 2"/><path d="M19 3a2 2 0 0 1 2 2"/><path d="M21 19a2 2 0 0 1-2 2"/><path d="M5 21a2 2 0 0 1-2-2"/><path d="M9 3h1"/><path d="M9 21h1"/><path d="M14 3h1"/><path d="M14 21h1"/><path d="M3 9v1"/><path d="M21 9v1"/><path d="M3 14v1"/><path d="M21 14v1"/></svg>
+                <span class="mermaid-mode-label">拖拽</span>
+              </button>
+              <span class="mermaid-interact-hint">Shift+滚轮缩放 · 拖拽移动 · 双击复位</span>
+            </div>
+            <div class="mermaid-body">${svg}</div>
+          </div>
+        `;
+
+        preEl.replaceWith(figure);
+
+        if (typeof bindFunctions === 'function') {
+          const body = figure.querySelector('.mermaid-body') as HTMLElement | null;
+          if (body) bindFunctions(body);
+        }
+      } catch (e) {
+        const msg = (e as Error)?.message || String(e);
+
+        // Vite dev quirk: when mermaid's dependency optimization changes,
+        // previously-served chunk URLs (`…classDiagram-XXXX.js?v=hash`) 404.
+        // The browser tab still holds the stale URL until a hard reload.
+        // We auto-reload once per session so the user doesn't see a render
+        // error after Vite re-optimizes deps.
+        if (
+          /Failed to fetch dynamically imported module/i.test(msg) ||
+          /error loading dynamically imported module/i.test(msg)
+        ) {
+          try {
+            const KEY = 'lyra-mermaid-stale-reload';
+            if (!sessionStorage.getItem(KEY)) {
+              sessionStorage.setItem(KEY, '1');
+              location.reload();
+              return;
+            }
+          } catch { /* sessionStorage unavailable, fall through */ }
+        }
+
+        const errorDiv = document.createElement('div');
+        errorDiv.className =
+          'my-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs whitespace-pre-wrap';
+        errorDiv.textContent = `Mermaid render error: ${msg}\n\nSource:\n${chartDefinition}`;
+        preEl.replaceWith(errorDiv);
+      }
+    }
+  }
+
+  /**
+   * NOTE: live re-render across themes was attempted but caused dev-mode
+   * stale-chunk loops (mermaid 11 lazy-imports diagram chunks via Vite, which
+   * re-optimizes deps the moment a new diagram type is encountered). We now
+   * full-reload on theme change instead — see the `theme-change` handler at
+   * the bottom of this file. The source of each diagram is still stashed on
+   * `figure.dataset.mermaidSource` so future revisions can revisit live
+   * rerendering once mermaid's chunking story stabilizes.
+   */
+
+  // After rendering, setup zoom/pan interactions on all mermaid figures
+  function initMermaidInteraction() {
+    const bodies = document.querySelectorAll<HTMLElement>('.mermaid-body');
+    bodies.forEach((body) => {
+      if (body.dataset.zoomInit === 'true') return;
+      body.dataset.zoomInit = 'true';
+
+      const svg = body.querySelector('svg');
+      if (!svg) return;
+
+      const card = body.closest('.mermaid-card');
+      const toggleBtn = card?.querySelector<HTMLButtonElement>('.mermaid-mode-toggle');
+      const hintEl = card?.querySelector<HTMLElement>('.mermaid-interact-hint');
+
+      let mode: 'move' | 'select' = 'move'; // default: drag/zoom mode
+      let scale = 1;
+      let panX = 0;
+      let panY = 0;
+      let isDragging = false;
+      let startX = 0;
+      let startY = 0;
+
+      const applyTransform = () => {
+        (svg as HTMLElement).style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+        (svg as HTMLElement).style.transformOrigin = 'center center';
+      };
+
+      const updateModeUI = () => {
+        if (toggleBtn) {
+          toggleBtn.dataset.mode = mode;
+          const label = toggleBtn.querySelector('.mermaid-mode-label');
+          if (label) label.textContent = mode === 'move' ? '拖拽' : '选择';
+        }
+        body.dataset.interactMode = mode;
+        if (hintEl) {
+          hintEl.textContent = mode === 'move'
+            ? 'Shift+滚轮缩放 · 拖拽移动 · 双击复位'
+            : '可选择复制文字 · 点击切换回拖拽模式';
+        }
+      };
+
+      // Toggle button click
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+          mode = mode === 'move' ? 'select' : 'move';
+          updateModeUI();
+        });
+      }
+
+      // Shift + wheel → zoom (works in both modes)
+      body.addEventListener('wheel', (e) => {
+        if (!e.shiftKey) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+        scale = Math.max(0.3, Math.min(4, scale + delta));
+        applyTransform();
+      }, { passive: false });
+
+      // Mouse drag → pan (only in move mode)
+      body.addEventListener('mousedown', (e) => {
+        if (mode !== 'move') return;
+        if (e.button !== 0) return;
+        isDragging = true;
+        startX = e.clientX - panX;
+        startY = e.clientY - panY;
+        body.style.cursor = 'grabbing';
+        e.preventDefault();
+      });
+
+      const onMove = (e: MouseEvent) => {
+        if (!isDragging) return;
+        panX = e.clientX - startX;
+        panY = e.clientY - startY;
+        applyTransform();
+      };
+
+      const onUp = () => {
+        if (isDragging) {
+          isDragging = false;
+          body.style.cursor = mode === 'move' && scale !== 1 ? 'grab' : '';
+        }
+      };
+
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+
+      // Double-click → reset (in move mode) or no-op (in select mode)
+      body.addEventListener('dblclick', (e) => {
+        if (mode !== 'move') return;
+        e.preventDefault();
+        scale = 1;
+        panX = 0;
+        panY = 0;
+        applyTransform();
+        body.style.cursor = '';
+      });
+
+      updateModeUI();
+    });
+  }
+
+  async function renderAndInit() {
+    await renderMermaidBlocks();
+    initMermaidInteraction();
+    // Clear the stale-reload guard so a real failure on the next visit
+    // is allowed to retry once again.
+    try { sessionStorage.removeItem('lyra-mermaid-stale-reload'); } catch { /* noop */ }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    renderAndInit();
+  });
+  if (document.readyState !== 'loading') {
+    renderAndInit();
+  }
+
+  // When the site theme changes we need every Mermaid SVG to be regenerated
+  // with the matching themeVariables (mermaid bakes colors into the SVG at
+  // render time — pure CSS can't follow). Triggering mermaid.render() again
+  // for already-loaded charts is brittle in dev mode: mermaid 11 lazy-imports
+  // diagram-type chunks (`mindmap-definition-XXXX.js`, ...) and Vite
+  // re-optimization may invalidate previously-served hashes mid-flight,
+  // looping the page in stale-chunk reloads.
+  //
+  // Simpler & robust: just full-reload the page after a debounce. The
+  // pre-paint inline script in BaseLayout has already persisted the new theme
+  // to <html data-theme>, so on reload mermaid initializes against the right
+  // palette and renders the SVGs once with correct colors. CodeBlock and
+  // global CSS variables don't need a reload (they're already swapped live).
+  let themeReloadTimer: ReturnType<typeof setTimeout> | null = null;
+  window.addEventListener('theme-change', () => {
+    // Only reload if we already rendered at least one diagram; otherwise
+    // nothing to refresh.
+    const hasRendered = document.querySelector('figure.mermaid-figure');
+    if (!hasRendered) return;
+    if (themeReloadTimer) clearTimeout(themeReloadTimer);
+    themeReloadTimer = setTimeout(() => {
+      location.reload();
+    }, 250);
+  });
+</script>
+
+<style is:global>
+  /* -------- Source-block hide while loading -------- */
+  pre.mermaid-source,
+  pre[data-language="mermaid"] {
+    visibility: hidden;
+    max-height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  /* -------- Mermaid card layout -------- */
+  .mermaid-figure {
+    margin: 2rem calc(-50vw + 50%);
+    max-width: 100vw;
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+  }
+
+  /* Theme-aware card surfaces (defaults = dark) */
+  .mermaid-card {
+    position: relative;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #11151f 0%, #0d1118 100%);
+    border: 1px solid rgba(34, 211, 238, 0.18);
+    box-shadow:
+      0 1px 0 0 rgba(255, 255, 255, 0.04) inset,
+      0 8px 24px -12px rgba(0, 0, 0, 0.6),
+      0 0 0 1px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+  }
+
+  :root[data-theme="light"] .mermaid-card {
+    background: linear-gradient(180deg, #ffffff 0%, #f5f7fa 100%);
+    border: 1px solid rgba(8, 145, 178, 0.22);
+    box-shadow:
+      0 1px 0 0 rgba(255, 255, 255, 0.6) inset,
+      0 6px 18px -10px rgba(15, 23, 42, 0.18),
+      0 0 0 1px rgba(15, 23, 42, 0.04);
+  }
+
+  /* Cyan top accent line — like the reference */
+  .mermaid-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(34, 211, 238, 0.6) 20%,
+      rgba(99, 102, 241, 0.6) 50%,
+      rgba(34, 211, 238, 0.6) 80%,
+      transparent 100%
+    );
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  :root[data-theme="light"] .mermaid-card::before {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(8, 145, 178, 0.55) 20%,
+      rgba(37, 99, 235, 0.55) 50%,
+      rgba(8, 145, 178, 0.55) 80%,
+      transparent 100%
+    );
+  }
+
+  .mermaid-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 1rem;
+    background: linear-gradient(180deg, rgba(34, 211, 238, 0.06), rgba(34, 211, 238, 0.02));
+    border-bottom: 1px solid rgba(34, 211, 238, 0.12);
+  }
+
+  :root[data-theme="light"] .mermaid-header {
+    background: linear-gradient(180deg, rgba(8, 145, 178, 0.06), rgba(8, 145, 178, 0.02));
+    border-bottom: 1px solid rgba(8, 145, 178, 0.18);
+  }
+
+  .mermaid-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 0.55rem;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: #67e8f9;
+    background: rgba(34, 211, 238, 0.08);
+    border: 1px solid rgba(34, 211, 238, 0.25);
+    text-transform: uppercase;
+  }
+
+  :root[data-theme="light"] .mermaid-badge {
+    color: #0e7490;
+    background: rgba(8, 145, 178, 0.1);
+    border: 1px solid rgba(8, 145, 178, 0.3);
+  }
+
+  .mermaid-caption {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+
+  .mermaid-interact-hint {
+    margin-left: auto;
+    font-size: 11px;
+    color: rgba(148, 163, 184, 0.5);
+    font-style: italic;
+  }
+
+  :root[data-theme="light"] .mermaid-interact-hint {
+    color: rgba(71, 85, 105, 0.5);
+  }
+
+  /* -------- Mode Toggle Button -------- */
+  .mermaid-mode-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    height: 24px;
+    padding: 0 0.5rem;
+    border-radius: 4px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: rgba(148, 163, 184, 0.06);
+    color: var(--text-secondary);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+
+  .mermaid-mode-toggle:hover {
+    border-color: rgba(34, 211, 238, 0.4);
+    background: rgba(34, 211, 238, 0.08);
+    color: #67e8f9;
+  }
+
+  .mermaid-mode-toggle[data-mode="select"] {
+    border-color: rgba(34, 211, 238, 0.5);
+    background: rgba(34, 211, 238, 0.12);
+    color: #67e8f9;
+  }
+
+  :root[data-theme="light"] .mermaid-mode-toggle:hover,
+  :root[data-theme="light"] .mermaid-mode-toggle[data-mode="select"] {
+    border-color: rgba(8, 145, 178, 0.45);
+    background: rgba(8, 145, 178, 0.08);
+    color: #0e7490;
+  }
+
+  .mermaid-mode-icon { display: none; }
+  .mermaid-mode-toggle[data-mode="move"] .icon-move { display: block; }
+  .mermaid-mode-toggle[data-mode="select"] .icon-select { display: block; }
+
+  /* -------- Mode-dependent body behavior -------- */
+  .mermaid-body[data-interact-mode="select"] {
+    cursor: text !important;
+  }
+
+  .mermaid-body[data-interact-mode="select"] svg {
+    cursor: text !important;
+    user-select: text;
+    -webkit-user-select: text;
+  }
+
+  .mermaid-body[data-interact-mode="move"] svg {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .mermaid-body {
+    padding: 1.75rem 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    background:
+      radial-gradient(1200px 200px at 50% 0%, rgba(34, 211, 238, 0.04), transparent 60%),
+      transparent;
+  }
+
+  :root[data-theme="light"] .mermaid-body {
+    background:
+      radial-gradient(1200px 200px at 50% 0%, rgba(8, 145, 178, 0.05), transparent 60%),
+      transparent;
+  }
+
+  .mermaid-body svg {
+    max-width: 100%;
+    height: auto;
+    transition: transform 0.1s ease-out;
+    cursor: default;
+  }
+
+  .mermaid-body[data-zoom-init="true"] svg {
+    cursor: grab;
+  }
+  .mermaid-body[data-zoom-init="true"]:active svg {
+    cursor: grabbing;
+  }
+
+  /* -------- SVG internals (theme-aware via CSS vars) --------
+     Mermaid bakes the rendered SVG's fill/stroke from themeVariables we pass
+     into mermaid.initialize. The rules below override mermaid's defaults to
+     keep edge labels and node visuals consistent with the surrounding card,
+     and they switch via [data-theme]. */
+  .mermaid-body .edgeLabel,
+  .mermaid-body .edgeLabel p,
+  .mermaid-body .edgeLabel span {
+    background: transparent !important;
+    color: var(--text-secondary) !important;
+    font-size: 12.5px !important;
+  }
+
+  .mermaid-body .edgeLabel rect {
+    fill: #1a1d2e !important;
+    stroke: none !important;
+  }
+
+  :root[data-theme="light"] .mermaid-body .edgeLabel rect {
+    fill: #ffffff !important;
+  }
+
+  .mermaid-body .node rect,
+  .mermaid-body .node polygon,
+  .mermaid-body .node circle,
+  .mermaid-body .node ellipse,
+  .mermaid-body .node path {
+    fill: #1e2230 !important;
+    stroke: #22d3ee !important;
+    stroke-width: 1.25px !important;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+  }
+
+  :root[data-theme="light"] .mermaid-body .node rect,
+  :root[data-theme="light"] .mermaid-body .node polygon,
+  :root[data-theme="light"] .mermaid-body .node circle,
+  :root[data-theme="light"] .mermaid-body .node ellipse,
+  :root[data-theme="light"] .mermaid-body .node path {
+    fill: #ffffff !important;
+    stroke: #0891b2 !important;
+    stroke-width: 1.25px !important;
+    filter: drop-shadow(0 2px 6px rgba(15, 23, 42, 0.12));
+  }
+
+  .mermaid-body .nodeLabel,
+  .mermaid-body .nodeLabel *,
+  .mermaid-body .node text,
+  .mermaid-body .node foreignObject span,
+  .mermaid-body .node foreignObject p {
+    color: #e2e8f0 !important;
+    fill: #e2e8f0 !important;
+    font-weight: 500;
+  }
+
+  :root[data-theme="light"] .mermaid-body .nodeLabel,
+  :root[data-theme="light"] .mermaid-body .nodeLabel *,
+  :root[data-theme="light"] .mermaid-body .node text,
+  :root[data-theme="light"] .mermaid-body .node foreignObject span,
+  :root[data-theme="light"] .mermaid-body .node foreignObject p {
+    color: #0f172a !important;
+    fill: #0f172a !important;
+  }
+
+  .mermaid-body .flowchart-link,
+  .mermaid-body .messageLine0,
+  .mermaid-body .messageLine1,
+  .mermaid-body path.relation {
+    stroke-width: 1.5px !important;
+  }
+
+  .mermaid-body .marker {
+    fill: #64748b !important;
+    stroke: #64748b !important;
+  }
+
+  /* State diagram: rounded corners */
+  .mermaid-body g.statediagram-state rect.basic,
+  .mermaid-body g.stateGroup rect {
+    rx: 6 !important;
+    ry: 6 !important;
+  }
+
+  /* Class diagram: title bar tint */
+  .mermaid-body g.classGroup rect {
+    rx: 4 !important;
+    ry: 4 !important;
+  }
+  .mermaid-body g.classGroup line {
+    stroke: rgba(34, 211, 238, 0.35) !important;
+  }
+
+  :root[data-theme="light"] .mermaid-body g.classGroup line {
+    stroke: rgba(8, 145, 178, 0.45) !important;
+  }
+</style>
+
+<noscript>
+  <style>
+    pre.mermaid-source,
+    pre[data-language="mermaid"] {
+      visibility: visible !important;
+      max-height: none !important;
+      margin: 1rem 0 !important;
+      padding: 1rem !important;
+    }
+  </style>
+</noscript>

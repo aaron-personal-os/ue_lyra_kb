@@ -1,0 +1,43 @@
+# UE 本地化和国际化教程系列元数据
+
+id: localization-i18n
+title: "UE 本地化与国际化从理论到实践"
+description: "系统学习 UE 本地化（L10n）和国际化（I18n）系统，从核心概念、文本本地化、资产本地化到 Lyra 项目的完整实践。"
+difficulty_range: [beginner, intermediate]
+ue_version: "5.7"
+total_lessons: 7
+estimated_hours: 8
+
+# 学习路径（分阶段）
+learning_path:
+  - stage: "基础概念"
+    description: "理解国际化与本地化的区别、UE 本地化系统架构"
+    lessons:
+      - 00-UE本地化与国际化概览
+      - 01-国际化vs本地化概念与区别
+
+  - stage: "文本本地化"
+    description: "掌握 FText、String Tables、文本格式化、本地化仪表盘工作流"
+    lessons:
+      - 02-文本本地化深入FText与StringTables
+      - 03-本地化仪表盘与工作流
+
+  - stage: "高级主题与实战"
+    description: "资产本地化、运行时语言切换、Lyra 项目实践"
+    lessons:
+      - 04-资产本地化音频纹理与多媒体
+      - 05-运行时语言切换
+      - 06-Lyra本地化实践案例
+
+# 前置知识要求
+prerequisites:
+  - series: ue-framework
+    minimum: 00-UE本地化与国际化概览
+    description: "建议先学习 UE 框架基础系列，了解 UObject、蓝图、编辑器基础"
+  - concept: C++ 基础
+    description: "需要了解基本语法、字符串处理、配置读取"
+  - concept: 编辑器基础操作
+    description: "需要了解如何在编辑器中创建 Data Asset、配置项目设置"
+
+# 系列标签
+tags: [localization, internationalization, i18n, l10n, FText, StringTable, culture]

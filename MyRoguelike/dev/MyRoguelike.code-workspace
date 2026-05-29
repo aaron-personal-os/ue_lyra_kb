@@ -1,0 +1,21 @@
+{
+  "folders": [
+    {
+      "path": "ue_lyra_kb",
+      "name": "知识库与设计文档"
+    },
+    {
+      "path": "MyRoguelikeGame",
+      "name": "UE 工程"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/Binaries": true,
+      "**/Intermediate": true,
+      "**/DerivedDataCache": true,
+      "**/Saved": true,
+      "**/.vs": true
+    }
+  }
+}

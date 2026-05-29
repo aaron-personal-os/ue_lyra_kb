@@ -1,0 +1,19 @@
+name: Niagara 系统系列
+slug: niagara
+description: UE5 Niagara 粒子系统框架设计、模拟流程和 Lyra 应用
+difficulty: intermediate → advanced
+ue_version: "5.7"
+total_lessons: 8
+estimated_hours: 15
+prerequisites:
+  - series: ue-framework
+    minimum: 00-overview
+  - concept: GPU 编程基础概念（可选）
+learning_path:
+  - stage: 基础
+    lessons: [01-Niagara系统框架深度分析-概览, 02-Niagara系统核心框架深度分析, 03-Niagara脚本与模块系统深度分析]
+  - stage: 模拟流程
+    lessons: [04-NiagaraCPU粒子模拟流程深度分析, 05-NiagaraGPU粒子模拟流程深度分析]
+  - stage: 进阶
+    lessons: [06-Niagara数据接口系统, 07-Niagara渲染器和性能优化系统, 08-Lyra项目中的Niagara系统应用实例]
+tags: [Niagara, 粒子, 特效, GPU]

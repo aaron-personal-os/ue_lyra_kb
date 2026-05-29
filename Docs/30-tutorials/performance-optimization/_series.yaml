@@ -1,0 +1,49 @@
+name: 性能优化（Performance Optimization）
+slug: performance-optimization
+description: UE5 性能分析与优化系统教程，从 Profiling 工具到 CPU/GPU/内存/网络全方位优化
+difficulty: intermediate → advanced
+ue_version: "5.7"
+total_lessons: 6
+estimated_hours: 5
+prerequisites:
+  - series: ue-framework
+    minimum: 00-性能优化系列概览
+  - concept: 基础 C++ 和蓝图知识
+  - concept: 了解 Tick 系统和渲染管线基础
+learning_path:
+  - stage: 性能分析基础
+    description: 掌握 UE5 性能分析工具的使用方法
+    lessons:
+      - 00-性能优化系列概览
+      - 01-性能分析工具
+  - stage: CPU 性能优化
+    description: 优化游戏线程、渲染线程、Tick 性能
+    lessons:
+      - 02-CPU性能优化
+  - stage: GPU 与渲染优化
+    description: 渲染管线优化、Draw Call 优化、材质优化
+    lessons:
+      - 03-GPU与渲染优化
+  - stage: 内存与资源优化
+    description: 内存管理、GC 优化、资源加载策略
+    lessons:
+      - 04-内存优化
+  - stage: 网络性能优化
+    description: 复制优化、带宽控制、RPC 优化
+    lessons:
+      - 05-网络性能优化
+  - stage: Lyra 性能实战
+    description: Lyra 项目中的性能分析与优化案例
+    lessons:
+      - 06-Lyra性能实战
+tags:
+  - performance
+  - optimization
+  - profiling
+  - cpu
+  - gpu
+  - memory
+  - networking
+owner: ai
+created: 2026-057
+status: current

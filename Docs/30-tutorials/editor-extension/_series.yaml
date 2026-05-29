@@ -1,0 +1,27 @@
+name: "UE 编辑器扩展从入门到实战"
+slug: editor-extension
+description: "系统学习 UE5 编辑器扩展机制，掌握菜单、工具栏、属性面板、蓝图节点的自定义方法"
+difficulty_range: [beginner, advanced]
+ue_version: "5.3+"
+total_lessons: 9
+estimated_hours: 8
+prerequisites:
+  - concept: UE C++ 基础（UObject、模块系统）
+  - concept: Slate / UMG 基本概念
+learning_path:
+  - stage: 系列概览
+    description: 理解编辑器扩展能做什么、整体学习路径
+    lessons: [00-UE编辑器扩展系列概览]
+  - stage: 基础入门
+    description: 掌握编辑器扩展模块结构与基础 API
+    lessons: [01-UE编辑器扩展基础]
+  - stage: 菜单与工具栏
+    description: 自定义菜单项、工具栏按钮与 Tab 页
+    lessons: [02-菜单项定制, 03-ToolBar定制, 04-Tab页定制]
+  - stage: 属性与面板定制
+    description: 自定义属性显示、Details 面板与蓝图节点 Pin 显示
+    lessons: [05-自定义属性显示, 06-自定义Details面板显示, 07-自定义蓝图参数节点-Pin显示]
+  - stage: 高级主题
+    description: 高级扩展技巧与最佳实践
+    lessons: [08-高级主题与最佳实践]
+tags: [editor-extension, customization, menu, toolbar, details-panel, slate]
