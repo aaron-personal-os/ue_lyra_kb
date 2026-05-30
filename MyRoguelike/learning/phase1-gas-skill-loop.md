@@ -43,3 +43,69 @@
 - [`ULyraAbilitySystemComponent.md`](../../Docs/20-modules/cpp/ULyraAbilitySystemComponent.md) — Lyra 对 ASC 的扩展，如需深入了解扩展点可查阅。
 - [`ULyraPawnData.md`](../../Docs/20-modules/cpp/ULyraPawnData.md) — PawnData 是 Lyra 将 AbilitySet、Camera 模式等配置绑定到 Pawn 的方式；可作为未来数据驱动扩展的参考。
 - [`ULyraPawnExtensionComponent.md`](../../Docs/20-modules/cpp/ULyraPawnExtensionComponent.md) — 理解 Lyra 如何在 Pawn 初始化时桥接 ASC，若想模仿其初始化顺序可参考。
+
+## 从 LevelDesign/Variant_RPG 借鉴
+
+> 参考源：`G:\UEProjects\LevelDesign\Source\LevelDesign\Variant_RPG\`，详见 [ADR 0003](../decisions/0003-borrow-from-leveldesign-rpg.md)。
+
+### 技能 DataAsset 字段清单
+
+`URPGAbilityDefinition`（`Data/RPGAbilityDefinition.h`）已在真实原型中验证了一套完整的技能字段。MyRoguelike 技能 DataAsset 或 GameplayAbility 默认值可直接参照以下字段：
+
+| 字段 | 含义 | GAS 落地位置 |
+|------|------|-------------|
+| `Damage` | 基础伤害值 | Damage GE 的 SetByCaller Magnitude |
+| `ManaCost` / `StaminaCost` | 消耗资源量 | Cost GE 的 SetByCaller Magnitude |
+| `CooldownSeconds` | 冷却时长 | Cooldown GE 的 Duration |
+| `Range` | 技能作用范围 | GA 内射线检测参数 |
+| `DamageApplicationTiming` | `Instant`（即时）或 `OnAnimNotify`（帧提交） | 决定 GA 在 ActivateAbility 还是 WaitGameplayEvent 中应用 GE |
+| `MeleeTargetQuery` | `ActorLineTrace` 或 `SocketSphereSweep` | GA 内命中检测逻辑选择 |
+| `MeleeTraceSocketName` | 武器骨骼 Socket 名 | SweepSingleByChannel 起点 |
+| `MeleeHitRange` / `MeleeHitRadius` | 近战有效距离与判定半径 | 球扫描参数 |
+| `ActionMontage` | 技能动画 | `UAbilityTask_PlayMontageAndWait` 的输入 |
+
+### 命中时序模式：PendingActivation → GAS AbilityTask
+
+LevelDesign 的时序是：
+
+```
+TryActivateAbility()
+  → PlayActionMontage()
+  → BeginPendingActivation()    ← 登记"待命中"
+AnimNotify_RPGMeleeDamage
+  → CommitPendingMeleeDamage()  ← 在正确帧做射线检测 + 伤害
+Montage 结束
+  → ClearPendingActivation()
+```
+
+GAS 里的等价实现（推荐结构）：
+
+```
+GameplayAbility::ActivateAbility()
+  → UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy()
+  → UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(Tag: "GameplayEvent.Melee.Hit")
+                                          ↑
+                        AnimNotify_SendGameplayEvent 在正确帧发出该 Event
+  → OnEventReceived()
+      → LineTrace / SphereSweep 检测命中
+      → ApplyGameplayEffectToTarget(DamageGE)
+  → OnCompleted() / OnInterrupted()
+      → EndAbility()
+```
+
+好处：帧提交时序与 LevelDesign 完全一致，同时伤害通过 GE 表达，可叠加 relic 的伤害加成修正。
+
+### 组件化角色结构
+
+参照 `ARPGCharacter`（`Core/RPGCharacter.h`）的设计原则：**主 Character 类只做组件 getter，不含任何业务逻辑**。
+
+`AMRCharacterBase` 建议遵循同样约定：
+
+```cpp
+// 主类只暴露 getter，职责边界清晰
+UAbilitySystemComponent* GetAbilitySystemComponent() const;
+UMRAttributeSet*         GetAttributeSet()           const;
+// 未来可按需添加 AnimationComponent / EquipmentComponent 等
+```
+
+ASC 挂在 Character 本体（非 PlayerState），Owner 和 Avatar 均为 `this`，单机场景完全够用且更简单。

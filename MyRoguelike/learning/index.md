@@ -5,17 +5,25 @@
 ## 使用方式
 
 1. **开发某个阶段前** → 打开对应的 `phaseN-*.md`，按推荐顺序阅读，了解背后机制。
-2. **不确定去哪查** → 在本文件搜索关键词，找到对应阶段入口。
-3. **对话涉及新 KB 内容** → AI 会自动追加到对应阶段，无需手动维护。
+2. **已有 UE 组件经验、想直接做 GAS** → 看 [phase1-minimal-reading.md](phase1-minimal-reading.md)（跳过框架系统学习）。
+3. **不确定去哪查** → 在本文件搜索关键词，找到对应阶段入口。
+4. **对话涉及新 KB 内容** → AI 会自动追加到对应阶段，无需手动维护。
+
+## 快速入口
+
+| 场景 | 文档 |
+|------|------|
+| 直接做 GAS 技能闭环 | [phase1-minimal-reading.md](phase1-minimal-reading.md) |
+| Phase 1 完整导读 + LevelDesign 借鉴 | [phase1-gas-skill-loop.md](phase1-gas-skill-loop.md) |
 
 ## 阶段导读
 
 | 阶段 | 文件 | 状态 | 核心主题 |
 |------|------|------|----------|
 | Phase 0 | [phase0-project-init.md](phase0-project-init.md) | 预填充 | 工程初始化、GameMode、Enhanced Input |
-| Phase 1 | [phase1-gas-skill-loop.md](phase1-gas-skill-loop.md) | 预填充 | GAS、ASC、AbilitySet、技能释放 |
-| Phase 2 | [phase2-enemy-combat-room.md](phase2-enemy-combat-room.md) | 预填充 | AI 行为、AActor 生命周期、战斗房间 |
-| Phase 3 | [phase3-relic-system.md](phase3-relic-system.md) | 预填充 | DataAsset、PrimaryAsset、Relic 构筑 |
+| Phase 1 | [phase1-gas-skill-loop.md](phase1-gas-skill-loop.md) | 已更新 | GAS、ASC、AbilitySet、技能释放；LevelDesign 技能字段/命中时序借鉴 |
+| Phase 2 | [phase2-enemy-combat-room.md](phase2-enemy-combat-room.md) | 已更新 | AI 行为、AActor 生命周期、战斗房间；LevelDesign 激进测试 AI 借鉴 |
+| Phase 3 | [phase3-relic-system.md](phase3-relic-system.md) | 已更新 | DataAsset、PrimaryAsset、Relic 构筑；LevelDesign 手动叠加反面参照 |
 | Phase 4 | [phase4-run-manager.md](phase4-run-manager.md) | 预填充 | GameInstance、RunState、局内状态管理 |
 | Phase 5 | [phase5-procedural-level.md](phase5-procedural-level.md) | 预填充 | Level Streaming、异步加载、程序化关卡 |
 | Phase 6 | [phase6-meta-progress.md](phase6-meta-progress.md) | 预填充 | 存档、Meta 进度、GC 与资源管理 |

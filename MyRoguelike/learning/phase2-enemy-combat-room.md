@@ -42,3 +42,31 @@
 - [`02-BehaviorTree高级DecoratorService与EQS.md`](../../Docs/30-tutorials/ai-behavior/02-BehaviorTree高级DecoratorService与EQS.md) — 若需要更复杂的寻路感知逻辑（如 EQS 找掩体）。
 - [`03-StateTree入门.md`](../../Docs/30-tutorials/ai-behavior/03-StateTree入门.md) — 若 BehaviorTree 管理起来复杂，可考虑迁移到 StateTree。
 - [`00-APawn与ACharacter详解.md`](../../Docs/30-tutorials/ue-framework/50-player-system/00-APawn与ACharacter详解.md) — 敌人角色继承自 ACharacter，理解其移动组件和 Capsule 的行为。
+
+## 从 LevelDesign/Variant_RPG 借鉴
+
+> 参考源：`G:\UEProjects\LevelDesign\Source\LevelDesign\Variant_RPG\`，详见 [ADR 0003](../decisions/0003-borrow-from-leveldesign-rpg.md)。
+
+### MVP 敌人 AI：激进测试模式
+
+LevelDesign 的 `ARPGAIController`（`AI/RPGAIController.h`）提供了一个无需完整 BehaviorTree 的**最简战斗 AI**，通过 `bAggressiveTestMode` 标志开启：
+
+```
+bAggressiveTestMode = true
+  → Tick 里追玩家（MoveToActor）
+  → 进入攻击距离（AggressiveStopDistance = 120cm）后停止
+  → 按 AggressiveAttackInterval（默认 0.55s）间隔调用普攻
+```
+
+**对 MyRoguelike 的意义**：Phase 2 的最小验收目标是"进房间 → 敌人追玩家 → 技能打死敌人 → 清房结算"。在 BehaviorTree 还没建好之前，可以用一个类似的 `bAggressiveTestMode` 让 `AMREnemyAIController` 直接 Tick 驱动，快速验证整条伤害链（敌人 ASC 受到 GE → Health 归零 → 死亡 → 触发房间结算）。BehaviorTree 在战斗链验证通过后再接入。
+
+### 输入抽象：AI 与玩家复用同一条行为路径
+
+LevelDesign 的 `FCharacterInputFrame`（`Core/RPGTypes.h`）把所有输入——无论来自键盘还是 AI——统一封装成同一个 struct，通过 `IRPGInputSource` 接口注入 Character，AI 和玩家走完全相同的行为路径，方便调试和录制回放。
+
+MyRoguelike 用 **InputTag → `ASC->TryActivateAbilitiesByTag()`** 达到同等效果：
+
+- 玩家输入：`UEnhancedInputComponent::BindAction` → 绑定 InputTag 激活
+- AI：`AIController::Tick` 或 BehaviorTree Task → 直接调用 `ASC->TryActivateAbilitiesByTag()`
+
+两者最终都走 ASC 的技能激活路径，无需为 AI 单独实现伤害逻辑。这和 Phase 1 导读"项目映射说明"中"ASC 挂 Character，敌人和玩家共用同一套 GE 伤害链"的结论是一致的。

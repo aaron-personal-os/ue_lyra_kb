@@ -29,6 +29,7 @@
 
 - [0001: 技术选型基线](decisions/0001-tech-stack-selection.md)
 - [0002: Windows 开发环境与双仓库协作](decisions/0002-windows-dev-environment.md)
+- [0003: 从 LevelDesign/Variant_RPG 吸取经验](decisions/0003-borrow-from-leveldesign-rpg.md)
 
 ### 开发环境
 
@@ -50,6 +51,7 @@
 边开发边学习：每个 roadmap 阶段都有对应的导读文件，索引了 Lyra 知识库中最相关的教程，并附上单机差异提示和项目映射说明。
 
 - [学习导读总索引](learning/index.md)
+- [Phase 1 最小阅读清单（可执行版）](learning/phase1-minimal-reading.md) — 有 UE 组件经验时推荐，跳过框架系统学习
 - [Phase 0：项目初始化](learning/phase0-project-init.md)
 - [Phase 1：GAS 最小技能闭环](learning/phase1-gas-skill-loop.md)
 - [Phase 2：敌人与战斗房间](learning/phase2-enemy-combat-room.md)

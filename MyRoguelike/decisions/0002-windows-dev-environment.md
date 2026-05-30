@@ -37,23 +37,25 @@
 
 ## 目录结构
 
+> 实际父目录为 `g:\UEProjects\`（原设为 `D:\Dev\`，已按实际路径更新）
+
 ```text
-D:\Dev\                              ← 开发父目录（Windows 本地）
+g:\UEProjects\                       ← 开发父目录（Windows 本地）
 ├── ue_lyra_kb\                      ← 仓库 A：知识库 + 设计文档
 │   ├── Docs\
 │   ├── MyRoguelike\
 │   │   ├── decisions\
 │   │   ├── architecture\
 │   │   ├── learning\
-│   │   └── dev\                     ← 工作区模板和 UE 工程模板
+│   │   └── dev\                     ← 工作区模板、初始化脚本
 │   └── .cursor\rules\
-├── MyRoguelikeGame\                 ← 仓库 B：真实 UE 工程
+├── MyRoguelikeGame\                 ← 仓库 B：真实 UE 工程（待创建）
 │   ├── Source\
 │   ├── Content\
 │   ├── Config\
-│   ├── AGENTS.md                    ← 从模板复制，引导 AI 跨仓库引用
+│   ├── AGENTS.md                    ← 由 init-roguelike-git.ps1 生成
 │   └── MyRoguelikeGame.uproject
-└── MyRoguelike.code-workspace       ← 从模板复制，绑定两个仓库
+└── MyRoguelike.code-workspace       ← 已生成，绑定两个仓库
 ```
 
 ## 三层协作机制
@@ -111,17 +113,17 @@ D:\Dev\                              ← 开发父目录（Windows 本地）
 
 完整步骤见 [`MyRoguelike/dev/windows-setup-checklist.md`](../dev/windows-setup-checklist.md)。
 
-概要：
+概要（实际路径 `g:\UEProjects\`）：
 
-1. Windows 安装 UE 5.7（与知识库参考版本一致）。
-2. 安装 Git + Git LFS。
-3. 创建 `D:\Dev\` 父目录。
-4. Clone 仓库 A（`ue_lyra_kb`）到 `D:\Dev\ue_lyra_kb\`。
-5. 在 UE 中创建 Third Person 工程到 `D:\Dev\MyRoguelikeGame\`。
-6. 初始化仓库 B 的 git + LFS，推到独立远端。
-7. 从模板复制 `MyRoguelike.code-workspace` 到 `D:\Dev\`。
-8. 从模板复制 `AGENTS.md` 到 `D:\Dev\MyRoguelikeGame\`。
-9. 用 Cursor 打开 `D:\Dev\MyRoguelike.code-workspace` 开始工作。
+1. Windows 安装 UE 5.7（已完成前置）。
+2. 安装 Git + Git LFS（已就绪：git 2.50、git-lfs 3.7）。
+3. 父目录 `g:\UEProjects\` 已存在，仓库 A 已位于其中。
+4. 在 UE 中创建 Third Person C++ 工程到 `g:\UEProjects\MyRoguelikeGame\`。
+5. 启用 GameplayAbilities / GameplayTags / GameplayTasks 插件。
+6. 运行 `init-roguelike-git.ps1` 初始化仓库 B 的 git + LFS 并首次提交。
+7. `MyRoguelike.code-workspace` 已生成于 `g:\UEProjects\`。
+8. `AGENTS.md` 由初始化脚本写入 `g:\UEProjects\MyRoguelikeGame\`。
+9. 用 Cursor 打开 `g:\UEProjects\MyRoguelike.code-workspace` 开始工作。
 10. Mac 上 `git pull` 同步知识库（可选，非必须）。
 
 ## Mac 特化配置的处置

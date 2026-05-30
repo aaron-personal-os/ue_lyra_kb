@@ -187,6 +187,21 @@ sequenceDiagram
 - 匹配、专服、复制预测和 ReplicationGraph。
 - CommonUI 全套框架。
 
+## 与 LevelDesign/Variant_RPG 的关系
+
+本机同级工程 `G:\UEProjects\LevelDesign\` 的 `Variant_RPG` 变体用纯组件方案实现了完整动作战斗原型，不依赖 GAS。以下设计借鉴自该工程：
+
+- **组件化角色结构**：主 Character 类只做组件 getter，业务全在子组件，参照 `ARPGCharacter`。
+- **AnimNotify 命中时序**：PendingActivation → AnimNotify 提交伤害的"预登记+帧提交"模式，在 GAS 里用 AbilityTask 等价表达。
+- **技能 DataAsset 字段**：`URPGAbilityDefinition` 的字段集合（伤害/消耗/冷却/命中方式/Montage）作为技能数据资产的字段参照。
+- **激进测试 AI**：`bAggressiveTestMode` 无 BehaviorTree 的最简追击+攻击 AI，用于 MVP 阶段快速验证伤害链。
+
+反面参照（不借鉴实现，但借鉴教训）：
+
+- `RecalculateFromEquipment` 的手动属性叠加——正是 relic 系统选 GAS 持续型 GameplayEffect 的依据。
+
+详见 [ADR 0003](decisions/0003-borrow-from-leveldesign-rpg.md)。
+
 ## 当前架构判断
 
 早期最小可行架构是：

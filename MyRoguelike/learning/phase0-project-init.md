@@ -4,9 +4,17 @@
 
 从干净 Unreal Third Person 模板工程出发，建立 GAS 插件、基础 C++ 角色类和输入绑定，让角色能在编辑器里正常运行。
 
-## 推荐阅读清单
+## 精简路径（推荐）
 
-按此顺序阅读，建立整体框架感后再动手配置。
+若已有 Third Person / 组件化 C++ 经验（如 LevelDesign/Variant_RPG），**不必按下方完整清单从 UE 框架学起**。直接看：
+
+→ **[Phase 1 最小阅读清单（可执行版）](phase1-minimal-reading.md)**
+
+该文档包含：4 项自检、工程搭建步骤、7 篇 GAS 必读、动手清单与按需查阅表。
+
+## 推荐阅读清单（完整版）
+
+按此顺序阅读，建立整体框架感后再动手配置。新手或希望系统理解 UE 分层时采用。
 
 1. [`00-UE引擎层详解.md`](../../Docs/30-tutorials/ue-framework/10-engine-layer/00-UE引擎层详解.md)
    — 了解 UEngine / UGameInstance / UWorld 的层级关系，明白"游戏从哪里启动"。

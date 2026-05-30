@@ -52,3 +52,48 @@ URelicData : UPrimaryDataAsset
 
 - [`04-引用与GC资源内存管理.md`](../../Docs/30-tutorials/resource-management/04-引用与GC资源内存管理.md) — 理解强引用 vs 软引用的 GC 影响，确保 Relic 资产在不需要时能被正确卸载。
 - [`ULyraEquipmentManagerComponent.md`](../../Docs/20-modules/cpp/ULyraEquipmentManagerComponent.md) — Lyra 装备系统也用了 AbilitySet 授予模式，可以看一下装备和卸载的完整流程作为参考。
+
+## 从 LevelDesign/Variant_RPG 对比（反面参照）
+
+> 参考源：`G:\UEProjects\LevelDesign\Source\LevelDesign\Variant_RPG\Core\RPGAttributeComponent.cpp`，详见 [ADR 0003](../decisions/0003-borrow-from-leveldesign-rpg.md)。
+
+### 手动重算加成的局限
+
+LevelDesign 的装备加成通过 `RecalculateFromEquipment(FRPGItemStatModifiers)` 实现：每次装备变动时，重新累加所有装备的 `BonusMaxHealth` / `BonusAttackDamage` 并写回属性。
+
+```cpp
+// LevelDesign 的方式（不要在 MyRoguelike 里照搬）
+void URPGAttributeComponent::RecalculateFromEquipment(const FRPGItemStatModifiers& EquipmentModifiers)
+{
+    Attributes.MaxHealth = BaseAttributes.MaxHealth + EquipmentModifiers.BonusMaxHealth;
+    BonusAttackDamage    = EquipmentModifiers.BonusAttackDamage;
+    BroadcastChange(TEXT("MaxHealth"), Attributes.MaxHealth);
+}
+```
+
+这在"只有装备加成"的场景下够用，但 roguelike 的 relic 系统会有：
+
+- 多个 relic 同时贡献相同属性（5 个 relic 各加 10% 伤害 → 需要叠加）
+- 同一 relic 有时间维度（持续 3 秒内伤害翻倍）
+- 某些 relic 有条件触发（"击杀后"）
+- Boss 诅咒需要**精确撤销**某个具体 relic 的加成
+
+每增加一种 relic 机制，`RecalculateFromEquipment` 就要扩展一次，最终变成一个庞大的条件计算函数，难以维护。
+
+### GAS 持续型 GameplayEffect 的优势
+
+Relic 选用 GAS 的 `AbilitySet::GiveToAbilitySystem()` + 持续型 `GameplayEffect`，每个 relic 独立授予、独立存在、独立撤销：
+
+```text
+Relic A 授予 → GE_RelicA_DamageBoost（持续型，Modifier: AttackPower * 1.1）
+Relic B 授予 → GE_RelicB_DamageBoost（持续型，Modifier: AttackPower * 1.1）
+...（n 个 relic 各自独立，GAS 自动聚合所有 Modifier）
+
+撤销 Relic A → TakeFromAbilitySystem(GrantedHandles_A) → 仅移除 A 的效果，B 不受影响
+```
+
+GAS 的 `FActiveGameplayEffectsContainer` 自动维护所有激活效果的叠加计算，不需要手动重算。这正是 MyRoguelike 的 relic 系统选择 GAS 路径的核心依据。
+
+### 字段语义可借鉴
+
+`FRPGItemStatModifiers` 的字段命名（`BonusMaxHealth` / `BonusAttackDamage`）是合理的语义参照，在 MyRoguelike 的 `URelicData` DataAsset 或 GE 配置中，可以用相似的描述性命名约定。
