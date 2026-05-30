@@ -30,3 +30,13 @@ When a task needs project context, use these files first:
 For knowledge-base tasks, use `.codebuddy/skills/project-wiki/SKILL.md` as the detailed workflow manual.
 
 Do not inline or duplicate the whole skill into answers. Load only the workflow files needed for the user's intent.
+
+## MyRoguelike Project Docs (migrated)
+
+Roguelike **project design** docs (roadmap, ADRs, learning guides) no longer live in this repo's `MyRoguelike/` directory.
+
+- **Canonical location**: sibling repo `MyRoguelikeGame/docs/design/`
+- **This repo (`ue_lyra_kb`)**: Lyra / UE technical knowledge in `Docs/` only
+- **Do not** edit `MyRoguelike/` for new project design work; that folder is a deprecated historical copy
+
+When a task needs roguelike project context, read from `MyRoguelikeGame/docs/design/` (via multi-root workspace), not `MyRoguelike/`.
