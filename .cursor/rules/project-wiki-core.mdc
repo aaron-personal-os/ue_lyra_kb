@@ -1,6 +1,7 @@
 ---
 description: Core Cursor entry rule for the UE Lyra knowledge base
-alwaysApply: true
+alwaysApply: false
+globs: Docs/**,**/ue_lyra_kb/**
 ---
 
 # UE Lyra Knowledge Base
