@@ -405,8 +405,10 @@ tags: [index, 目录]
 
 ## 横切主题
 
+- [[70-topics/gas-feature-quality-framework]] - GAS 功能质量框架（测试驱动、战斗场景编排、中段稳定性、上下游质量链路）
 - [[70-topics/game-feature-system]] - GameFeature 系统技术专题（UE5 模块化游戏架构）
 - [[70-topics/networking-and-synchronization]] - 网络通信与同步专题
+- [[70-topics/ui-framework-selection-and-integration]] - 游戏 UI 框架选型与接入（CommonUI、Lyra UI Layer、GAS 诊断 UI）
 
 ## 已知坑 (Gotchas)
 

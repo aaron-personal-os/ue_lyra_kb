@@ -326,6 +326,7 @@ graph TD
 - [[10-architecture/subsystems/ability-system]] - 能力系统架构详解
 - [[20-modules/cpp/ULyraAbilitySet]] - AbilitySet 类详解
 - [[00-meta/conventions]] - 项目约定和命名规范
+- [[70-topics/gas-feature-quality-framework]] - GAS 功能质量框架（契约、测试、诊断）
 
 ---
 > 最后更新：2026-05-16

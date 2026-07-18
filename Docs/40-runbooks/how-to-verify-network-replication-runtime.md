@@ -196,6 +196,7 @@ flowchart TD
 - [[30-tutorials/network-sync/07-LegacyReplicationvsIris]]
 - [[30-tutorials/network-sync/iris/00-Iris总览]]
 - [[30-tutorials/network-sync/06-ReplicationGraph与Lyra实践]]
+- [[70-topics/gas-feature-quality-framework]] - GAS 功能质量框架（网络测试、诊断归因）
 
 <!-- nav:auto -->
 

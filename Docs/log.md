@@ -1333,3 +1333,33 @@
 - **后续建议**：建议跑 `wiki_rebuild.py --incremental` 让 FTS5 索引同步本次新增/修改的两页
 
 ---
+
+## [2026-06-09] docs | GAS 功能质量框架落地 → [[70-topics/gas-feature-quality-framework]]
+
+- **背景**：沉淀“测试驱动 + 快速定位”与“可观测性、契约化、资源治理、故障归因”等辅助思想，用于重度 GAS / Lyra 项目的复杂问题定位。
+- **新增内容**：`Docs/70-topics/gas-feature-quality-framework.md`
+  - 分层测试金字塔、诊断型断言、Feature Contract、GAS Trace Timeline、L0-L7 故障模型。
+  - 接入 Lyra 当前源码中的 `ULyraAbilitySystemComponent`、`ULyraGameplayAbility`、`ULyraAbilitySet`、`ULyraGameplayCueManager`、`ULyraCheatManager`、`ULyraGameplayAbility_RangedWeapon`。
+  - 汇总 `ShowDebug AbilitySystem`、`AbilitySystem.Debug.NextCategory`、`Lyra.DumpGameplayCues`、GameplayCue 调试 CVar、武器弹道调试 CVar 等 GAS Debug 接入方式。
+  - 补充武器开火和 Dash 技能两个案例，以及资源体检、网络测试、CI 分层、bug 复盘模板、落地路线图。
+  - 整合运行时质量增强层：视觉证据、Runtime Combat Probe / Python 驱动、结构化遥测、不变量检查、故障注入、长稳测试、确定性复盘、Bot QA、Shadow Validation、运行时契约监控、性能和残留监控、防冲突原则。
+  - 新增 Combat Scenario Harness：面向冰冻后重击敲碎等精确战斗剧本，支持 Test Map、Test Pawn、Dummy Enemy、Scenario Director、Manual / Probe 双模式、干扰隔离和 GAS 断言链。
+  - 补充中段稳定性和可复现性补强：时间控制、确定性控制、状态快照/恢复、测试数据构建器、Oracle、Flake 治理、玩法覆盖地图、失败分流、产物管理、人工复核流程。
+  - 补充测试和运行时测试之外的外围支柱：设计期状态模型、变更影响分析、Build / Cook 门禁、数据和配置治理、可测试架构约束、PR 门禁、质量仪表盘、故障模式知识库、安全边界、性能预算设计。
+  - 补充上下游质量链路：需求到可验证规格、资产生产链路、编辑器工具和作者体验、Ownership 协作模型、版本矩阵、线上遥测回流、平衡性分析、玩家体验验证、热更新安全、文档培训和组织记忆。
+- **关联更新**：`Docs/index.md` 横切主题新增入口。
+- **验证**：`check_frontmatter.py` 因当前 `python3` 不支持 PEP 604 类型写法而未执行；Mermaid 与基础 Markdown 检查见本次工作记录。
+
+---
+
+## [2026-06-10] docs | UI 框架选型与 CommonUI 接入 → [[70-topics/ui-framework-selection-and-integration]]
+
+- **背景**：补充 Lyra / GAS 项目 UI 框架选型、CommonUI 是否适合、以及如何介入正式游戏 UI 与测试诊断 UI。
+- **新增内容**：`Docs/70-topics/ui-framework-selection-and-integration.md`
+  - 推荐 `UMG / Slate + CommonUI + PrimaryGameLayout / UI Layer + GameFeatureAction_AddWidgets + GameplayMessage / ViewModel`。
+  - 结合当前 Lyra 源码锚点：`ULyraActivatableWidget`、`UPrimaryGameLayout`、`UGameFeatureAction_AddWidgets`、`ULyraHUDLayout`。
+  - 明确 UI 与 GAS 的边界：UI 消费消息、ViewModel、状态快照，不直接操作 ASC 或承载 Gameplay 逻辑。
+  - 补充 Combat Scenario / Probe / GAS Trace 的测试诊断 Overlay 接入方案。
+- **关联更新**：`Docs/index.md` 横切主题新增入口；`gas-feature-quality-framework` 相关页面增加 UI 框架专题引用。
+
+---
