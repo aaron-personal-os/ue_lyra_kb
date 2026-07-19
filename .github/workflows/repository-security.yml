@@ -29,7 +29,7 @@ jobs:
       - name: Checkout shared security tooling
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
-          repository: aaron-game-build/agent-stack-shared
+          repository: aaron-personal-os/agent-stack-shared
           ref: f9e1c43a4a554e0cf296d794f6fcd80d00bc7db3
           path: .security/agent-stack-shared
           persist-credentials: false
