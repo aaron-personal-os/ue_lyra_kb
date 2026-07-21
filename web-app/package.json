@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@astrojs/react": "^4.2.0",
-    "astro": "^5.7.0",
+    "astro": "^7.1.0",
     "framer-motion": "^11.18.0",
     "katex": "^0.16.47",
     "mermaid": "^11.4.0",
